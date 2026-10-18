@@ -13,7 +13,7 @@ I 人到线下社交、玩这些游戏时，容易因为不会玩而尴尬。提
 - 参考与效率相关页面：`splendor-reference.html`、`splendor-efficiency.html`
 - 数据文件：`splendor-data.json`、`splendor-cards.csv` 等
 
-同目录里还有一个德州扑克练习页 [`texas-holdem.html`](./texas-holdem.html)，可一并使用。
+德州扑克练习已单独放在 [texas-holdem-practice](https://github.com/Lupin3rd-2/texas-holdem-practice)。
 
 ## 说明
 
