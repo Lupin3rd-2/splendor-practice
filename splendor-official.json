@@ -1,0 +1,1062 @@
+{
+ "game": "Splendor (璀璨宝石) 基础版",
+ "meta": {
+  "cards_total": 90,
+  "per_level": {
+   "1": 40,
+   "2": 30,
+   "3": 20
+  },
+  "points_from_cards": 140,
+  "points_from_nobles": 30,
+  "gem_demand": {
+   "white": 117,
+   "blue": 117,
+   "green": 117,
+   "red": 117,
+   "black": 117
+  },
+  "note": "卡表经图鉴图片逐张核对，每种宝石总需求均为 117，完全对称"
+ },
+ "gems": {
+  "white": "钻石(白)",
+  "blue": "蓝宝石",
+  "green": "绿宝石",
+  "red": "红宝石",
+  "black": "黑玛瑙"
+ },
+ "cards": [
+  {
+   "id": "L1-black-0",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "blue": 1,
+    "green": 1,
+    "red": 1
+   }
+  },
+  {
+   "id": "L1-black-1",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "blue": 2,
+    "green": 1,
+    "red": 1
+   }
+  },
+  {
+   "id": "L1-black-2",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "white": 2,
+    "blue": 2,
+    "red": 1
+   }
+  },
+  {
+   "id": "L1-black-3",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "green": 1,
+    "red": 3,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-black-4",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "green": 2,
+    "red": 1
+   }
+  },
+  {
+   "id": "L1-black-5",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "white": 2,
+    "green": 2
+   }
+  },
+  {
+   "id": "L1-black-6",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 0,
+   "cost": {
+    "green": 3
+   }
+  },
+  {
+   "id": "L1-black-7",
+   "level": 1,
+   "bonus": "black",
+   "prestige": 1,
+   "cost": {
+    "blue": 4
+   }
+  },
+  {
+   "id": "L1-blue-8",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "green": 1,
+    "red": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-blue-9",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "green": 1,
+    "red": 2,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-blue-10",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "green": 2,
+    "red": 2
+   }
+  },
+  {
+   "id": "L1-blue-11",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "blue": 1,
+    "green": 3,
+    "red": 1
+   }
+  },
+  {
+   "id": "L1-blue-12",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "black": 2
+   }
+  },
+  {
+   "id": "L1-blue-13",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "green": 2,
+    "black": 2
+   }
+  },
+  {
+   "id": "L1-blue-14",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 0,
+   "cost": {
+    "black": 3
+   }
+  },
+  {
+   "id": "L1-blue-15",
+   "level": 1,
+   "bonus": "blue",
+   "prestige": 1,
+   "cost": {
+    "red": 4
+   }
+  },
+  {
+   "id": "L1-white-16",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "blue": 1,
+    "green": 1,
+    "red": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-white-17",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "blue": 1,
+    "green": 2,
+    "red": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-white-18",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "blue": 2,
+    "green": 2,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-white-19",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "white": 3,
+    "blue": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-white-20",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "red": 2,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-white-21",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "blue": 2,
+    "black": 2
+   }
+  },
+  {
+   "id": "L1-white-22",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 0,
+   "cost": {
+    "blue": 3
+   }
+  },
+  {
+   "id": "L1-white-23",
+   "level": 1,
+   "bonus": "white",
+   "prestige": 1,
+   "cost": {
+    "green": 4
+   }
+  },
+  {
+   "id": "L1-green-24",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "blue": 1,
+    "red": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-green-25",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "blue": 1,
+    "red": 1,
+    "black": 2
+   }
+  },
+  {
+   "id": "L1-green-26",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "blue": 1,
+    "red": 2,
+    "black": 2
+   }
+  },
+  {
+   "id": "L1-green-27",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "blue": 3,
+    "green": 1
+   }
+  },
+  {
+   "id": "L1-green-28",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "white": 2,
+    "blue": 1
+   }
+  },
+  {
+   "id": "L1-green-29",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "blue": 2,
+    "red": 2
+   }
+  },
+  {
+   "id": "L1-green-30",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 0,
+   "cost": {
+    "red": 3
+   }
+  },
+  {
+   "id": "L1-green-31",
+   "level": 1,
+   "bonus": "green",
+   "prestige": 1,
+   "cost": {
+    "black": 4
+   }
+  },
+  {
+   "id": "L1-red-32",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "blue": 1,
+    "green": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-red-33",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "white": 2,
+    "blue": 1,
+    "green": 1,
+    "black": 1
+   }
+  },
+  {
+   "id": "L1-red-34",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "white": 2,
+    "green": 1,
+    "black": 2
+   }
+  },
+  {
+   "id": "L1-red-35",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "white": 1,
+    "red": 1,
+    "black": 3
+   }
+  },
+  {
+   "id": "L1-red-36",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "blue": 2,
+    "green": 1
+   }
+  },
+  {
+   "id": "L1-red-37",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "white": 2,
+    "red": 2
+   }
+  },
+  {
+   "id": "L1-red-38",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 0,
+   "cost": {
+    "white": 3
+   }
+  },
+  {
+   "id": "L1-red-39",
+   "level": 1,
+   "bonus": "red",
+   "prestige": 1,
+   "cost": {
+    "white": 4
+   }
+  },
+  {
+   "id": "L2-black-40",
+   "level": 2,
+   "bonus": "black",
+   "prestige": 1,
+   "cost": {
+    "white": 3,
+    "blue": 2,
+    "green": 2
+   }
+  },
+  {
+   "id": "L2-black-41",
+   "level": 2,
+   "bonus": "black",
+   "prestige": 1,
+   "cost": {
+    "white": 3,
+    "green": 3,
+    "black": 2
+   }
+  },
+  {
+   "id": "L2-black-42",
+   "level": 2,
+   "bonus": "black",
+   "prestige": 2,
+   "cost": {
+    "blue": 1,
+    "green": 4,
+    "red": 2
+   }
+  },
+  {
+   "id": "L2-black-43",
+   "level": 2,
+   "bonus": "black",
+   "prestige": 2,
+   "cost": {
+    "green": 5,
+    "red": 3
+   }
+  },
+  {
+   "id": "L2-black-44",
+   "level": 2,
+   "bonus": "black",
+   "prestige": 2,
+   "cost": {
+    "white": 5
+   }
+  },
+  {
+   "id": "L2-black-45",
+   "level": 2,
+   "bonus": "black",
+   "prestige": 3,
+   "cost": {
+    "black": 6
+   }
+  },
+  {
+   "id": "L2-blue-46",
+   "level": 2,
+   "bonus": "blue",
+   "prestige": 1,
+   "cost": {
+    "blue": 2,
+    "green": 2,
+    "red": 3
+   }
+  },
+  {
+   "id": "L2-blue-47",
+   "level": 2,
+   "bonus": "blue",
+   "prestige": 1,
+   "cost": {
+    "blue": 2,
+    "green": 3,
+    "black": 3
+   }
+  },
+  {
+   "id": "L2-blue-48",
+   "level": 2,
+   "bonus": "blue",
+   "prestige": 2,
+   "cost": {
+    "white": 5,
+    "blue": 3
+   }
+  },
+  {
+   "id": "L2-blue-49",
+   "level": 2,
+   "bonus": "blue",
+   "prestige": 2,
+   "cost": {
+    "white": 2,
+    "red": 1,
+    "black": 4
+   }
+  },
+  {
+   "id": "L2-blue-50",
+   "level": 2,
+   "bonus": "blue",
+   "prestige": 2,
+   "cost": {
+    "blue": 5
+   }
+  },
+  {
+   "id": "L2-blue-51",
+   "level": 2,
+   "bonus": "blue",
+   "prestige": 3,
+   "cost": {
+    "blue": 6
+   }
+  },
+  {
+   "id": "L2-white-52",
+   "level": 2,
+   "bonus": "white",
+   "prestige": 1,
+   "cost": {
+    "green": 3,
+    "red": 2,
+    "black": 2
+   }
+  },
+  {
+   "id": "L2-white-53",
+   "level": 2,
+   "bonus": "white",
+   "prestige": 1,
+   "cost": {
+    "white": 2,
+    "blue": 3,
+    "red": 3
+   }
+  },
+  {
+   "id": "L2-white-54",
+   "level": 2,
+   "bonus": "white",
+   "prestige": 2,
+   "cost": {
+    "green": 1,
+    "red": 4,
+    "black": 2
+   }
+  },
+  {
+   "id": "L2-white-55",
+   "level": 2,
+   "bonus": "white",
+   "prestige": 2,
+   "cost": {
+    "red": 5,
+    "black": 3
+   }
+  },
+  {
+   "id": "L2-white-56",
+   "level": 2,
+   "bonus": "white",
+   "prestige": 2,
+   "cost": {
+    "red": 5
+   }
+  },
+  {
+   "id": "L2-white-57",
+   "level": 2,
+   "bonus": "white",
+   "prestige": 3,
+   "cost": {
+    "white": 6
+   }
+  },
+  {
+   "id": "L2-green-58",
+   "level": 2,
+   "bonus": "green",
+   "prestige": 1,
+   "cost": {
+    "white": 3,
+    "green": 2,
+    "red": 3
+   }
+  },
+  {
+   "id": "L2-green-59",
+   "level": 2,
+   "bonus": "green",
+   "prestige": 1,
+   "cost": {
+    "white": 2,
+    "blue": 3,
+    "black": 2
+   }
+  },
+  {
+   "id": "L2-green-60",
+   "level": 2,
+   "bonus": "green",
+   "prestige": 2,
+   "cost": {
+    "white": 4,
+    "blue": 2,
+    "black": 1
+   }
+  },
+  {
+   "id": "L2-green-61",
+   "level": 2,
+   "bonus": "green",
+   "prestige": 2,
+   "cost": {
+    "blue": 5,
+    "green": 3
+   }
+  },
+  {
+   "id": "L2-green-62",
+   "level": 2,
+   "bonus": "green",
+   "prestige": 2,
+   "cost": {
+    "green": 5
+   }
+  },
+  {
+   "id": "L2-green-63",
+   "level": 2,
+   "bonus": "green",
+   "prestige": 3,
+   "cost": {
+    "green": 6
+   }
+  },
+  {
+   "id": "L2-red-64",
+   "level": 2,
+   "bonus": "red",
+   "prestige": 1,
+   "cost": {
+    "white": 2,
+    "red": 2,
+    "black": 3
+   }
+  },
+  {
+   "id": "L2-red-65",
+   "level": 2,
+   "bonus": "red",
+   "prestige": 1,
+   "cost": {
+    "blue": 3,
+    "red": 2,
+    "black": 3
+   }
+  },
+  {
+   "id": "L2-red-66",
+   "level": 2,
+   "bonus": "red",
+   "prestige": 2,
+   "cost": {
+    "white": 1,
+    "blue": 4,
+    "green": 2
+   }
+  },
+  {
+   "id": "L2-red-67",
+   "level": 2,
+   "bonus": "red",
+   "prestige": 2,
+   "cost": {
+    "white": 3,
+    "black": 5
+   }
+  },
+  {
+   "id": "L2-red-68",
+   "level": 2,
+   "bonus": "red",
+   "prestige": 2,
+   "cost": {
+    "black": 5
+   }
+  },
+  {
+   "id": "L2-red-69",
+   "level": 2,
+   "bonus": "red",
+   "prestige": 3,
+   "cost": {
+    "red": 6
+   }
+  },
+  {
+   "id": "L3-black-70",
+   "level": 3,
+   "bonus": "black",
+   "prestige": 3,
+   "cost": {
+    "white": 3,
+    "blue": 3,
+    "green": 5,
+    "red": 3
+   }
+  },
+  {
+   "id": "L3-black-71",
+   "level": 3,
+   "bonus": "black",
+   "prestige": 4,
+   "cost": {
+    "red": 7
+   }
+  },
+  {
+   "id": "L3-black-72",
+   "level": 3,
+   "bonus": "black",
+   "prestige": 4,
+   "cost": {
+    "green": 3,
+    "red": 6,
+    "black": 3
+   }
+  },
+  {
+   "id": "L3-black-73",
+   "level": 3,
+   "bonus": "black",
+   "prestige": 5,
+   "cost": {
+    "red": 7,
+    "black": 3
+   }
+  },
+  {
+   "id": "L3-blue-74",
+   "level": 3,
+   "bonus": "blue",
+   "prestige": 3,
+   "cost": {
+    "white": 3,
+    "green": 3,
+    "red": 3,
+    "black": 5
+   }
+  },
+  {
+   "id": "L3-blue-75",
+   "level": 3,
+   "bonus": "blue",
+   "prestige": 4,
+   "cost": {
+    "white": 7
+   }
+  },
+  {
+   "id": "L3-blue-76",
+   "level": 3,
+   "bonus": "blue",
+   "prestige": 4,
+   "cost": {
+    "white": 6,
+    "blue": 3,
+    "black": 3
+   }
+  },
+  {
+   "id": "L3-blue-77",
+   "level": 3,
+   "bonus": "blue",
+   "prestige": 5,
+   "cost": {
+    "white": 7,
+    "blue": 3
+   }
+  },
+  {
+   "id": "L3-white-78",
+   "level": 3,
+   "bonus": "white",
+   "prestige": 3,
+   "cost": {
+    "blue": 3,
+    "green": 3,
+    "red": 5,
+    "black": 3
+   }
+  },
+  {
+   "id": "L3-white-79",
+   "level": 3,
+   "bonus": "white",
+   "prestige": 4,
+   "cost": {
+    "black": 7
+   }
+  },
+  {
+   "id": "L3-white-80",
+   "level": 3,
+   "bonus": "white",
+   "prestige": 4,
+   "cost": {
+    "white": 3,
+    "red": 3,
+    "black": 6
+   }
+  },
+  {
+   "id": "L3-white-81",
+   "level": 3,
+   "bonus": "white",
+   "prestige": 5,
+   "cost": {
+    "white": 3,
+    "black": 7
+   }
+  },
+  {
+   "id": "L3-green-82",
+   "level": 3,
+   "bonus": "green",
+   "prestige": 3,
+   "cost": {
+    "white": 5,
+    "blue": 3,
+    "red": 3,
+    "black": 3
+   }
+  },
+  {
+   "id": "L3-green-83",
+   "level": 3,
+   "bonus": "green",
+   "prestige": 4,
+   "cost": {
+    "blue": 7
+   }
+  },
+  {
+   "id": "L3-green-84",
+   "level": 3,
+   "bonus": "green",
+   "prestige": 4,
+   "cost": {
+    "white": 3,
+    "blue": 6,
+    "green": 3
+   }
+  },
+  {
+   "id": "L3-green-85",
+   "level": 3,
+   "bonus": "green",
+   "prestige": 5,
+   "cost": {
+    "blue": 7,
+    "green": 3
+   }
+  },
+  {
+   "id": "L3-red-86",
+   "level": 3,
+   "bonus": "red",
+   "prestige": 3,
+   "cost": {
+    "white": 3,
+    "blue": 5,
+    "green": 3,
+    "black": 3
+   }
+  },
+  {
+   "id": "L3-red-87",
+   "level": 3,
+   "bonus": "red",
+   "prestige": 4,
+   "cost": {
+    "green": 7
+   }
+  },
+  {
+   "id": "L3-red-88",
+   "level": 3,
+   "bonus": "red",
+   "prestige": 4,
+   "cost": {
+    "blue": 3,
+    "green": 6,
+    "red": 3
+   }
+  },
+  {
+   "id": "L3-red-89",
+   "level": 3,
+   "bonus": "red",
+   "prestige": 5,
+   "cost": {
+    "green": 7,
+    "red": 3
+   }
+  }
+ ],
+ "nobles": [
+  {
+   "id": "N1",
+   "name": "Machiavelli（马基雅维利）",
+   "prestige": 3,
+   "requires": {
+    "white": 4,
+    "blue": 4
+   }
+  },
+  {
+   "id": "N2",
+   "name": "Mary Stuart（苏格兰的玛丽）",
+   "prestige": 3,
+   "requires": {
+    "green": 4,
+    "red": 4
+   }
+  },
+  {
+   "id": "N3",
+   "name": "Isabella I of Castile（伊莎贝拉一世）",
+   "prestige": 3,
+   "requires": {
+    "black": 4,
+    "white": 4
+   }
+  },
+  {
+   "id": "N4",
+   "name": "Suleiman the Magnificent（苏莱曼大帝）",
+   "prestige": 3,
+   "requires": {
+    "blue": 4,
+    "green": 4
+   }
+  },
+  {
+   "id": "N5",
+   "name": "Henry VIII（亨利八世）",
+   "prestige": 3,
+   "requires": {
+    "red": 4,
+    "black": 4
+   }
+  },
+  {
+   "id": "N6",
+   "name": "Anne of Brittany（布列塔尼的安妮）",
+   "prestige": 3,
+   "requires": {
+    "white": 3,
+    "blue": 3,
+    "green": 3
+   }
+  },
+  {
+   "id": "N7",
+   "name": "Catherine de Medici（凯瑟琳·德·美第奇）",
+   "prestige": 3,
+   "requires": {
+    "blue": 3,
+    "green": 3,
+    "red": 3
+   }
+  },
+  {
+   "id": "N8",
+   "name": "Francis I（弗朗索瓦一世）",
+   "prestige": 3,
+   "requires": {
+    "green": 3,
+    "red": 3,
+    "black": 3
+   }
+  },
+  {
+   "id": "N9",
+   "name": "Charles V（查理五世）",
+   "prestige": 3,
+   "requires": {
+    "red": 3,
+    "black": 3,
+    "white": 3
+   }
+  },
+  {
+   "id": "N10",
+   "name": "Elisabeth of Austria（奥地利的伊丽莎白）",
+   "prestige": 3,
+   "requires": {
+    "black": 3,
+    "white": 3,
+    "blue": 3
+   }
+  }
+ ]
+}

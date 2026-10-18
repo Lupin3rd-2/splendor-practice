@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>璀璨宝石 Splendor · 网页版</title>
+<style>
+:root{
+  --bg:#11161c; --bg2:#192028; --bg3:#202932; --bg4:#26313b;
+  --line:#2a3540; --line2:#374454;
+  --txt:#e7eef5; --txt2:#b6c2ce; --muted:#8794a3; --dim:#6d7a89;
+  --accent:#4d8ef7; --accent-d:#3b7ef0; --accent-w:#6aa4ff;
+  --gold:#e0bd66; --gold2:#b08d3f; --win:#2b2417;
+  --danger:#ef6f66; --green:#5ecf8a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+  font-family:"Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;font-size:13px}
+/* 整体界面缩放（用 zoom 统一放大，避免逐项调 px 造成比例失调） */
+body{zoom:1.12}
+.zoomctl{display:flex;align-items:center;gap:4px;margin-left:2px}
+.zoomctl button{padding:3px 8px;font-size:12px;line-height:1.2}
+button{font-family:inherit;font-size:12px;cursor:pointer;border-radius:6px;
+  border:1px solid var(--line2);background:var(--bg3);color:var(--txt);padding:4px 9px;transition:.12s}
+button:hover:not(:disabled){background:var(--bg4);border-color:#4a6fa5}
+button:disabled{opacity:.38;cursor:not-allowed}
+button.primary{background:var(--accent-d);border-color:var(--accent-d);color:#fff}
+button.primary:hover:not(:disabled){background:#2a63c4}
+.wrap{max-width:1500px;margin:0 auto;padding:10px 14px 30px}
+header{display:flex;align-items:center;gap:14px;padding:6px 2px 10px}
+.title{font-size:19px;font-weight:700;letter-spacing:.5px}
+.title span{font-size:12px;color:var(--muted);font-weight:400;margin-left:5px}
+.hud{margin-left:auto;display:flex;align-items:center;gap:9px}
+#turnInfo{font-size:13px;color:var(--txt2);background:var(--bg2);border:1px solid var(--line);
+  border-radius:20px;padding:5px 14px}
+.layout{display:grid;grid-template-columns:1fr 336px;gap:14px;align-items:start}
+main{display:flex;flex-direction:column;gap:10px;min-width:0}
+aside{display:flex;flex-direction:column;gap:9px}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:10px}
+.panel-h{font-size:12px;color:var(--muted);padding:7px 11px 0}
+/* 贵族 */
+.nobles{display:flex;gap:9px;flex-wrap:wrap}
+.noble{width:118px;background:var(--bg2);border:1px solid var(--line);border-top:3px solid var(--gold2);
+  border-radius:9px;padding:8px 9px 7px;position:relative}
+.noble.taken{opacity:.4;filter:grayscale(1)}
+.noble .npt{font-weight:700;color:var(--gold);font-size:14px}
+.noble .ncost{display:flex;gap:4px;margin:6px 0 5px;flex-wrap:wrap}
+.noble .nname{font-size:10px;color:var(--muted);line-height:1.35}
+.noble .nowner{position:absolute;right:7px;top:7px;font-size:10px;color:var(--danger)}
+/* 宝石池 */
+.gems{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.gemstack{width:52px;height:56px;border-radius:9px;border:1px solid var(--line2);position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  cursor:pointer;transition:.12s;background:var(--bg2)}
+.gemstack:hover:not(.dead){transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.45)}
+.gemstack.dead{opacity:.3;cursor:default}
+.gemstack.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(77,142,247,.3)}
+.gemstack .gdot{width:20px;height:20px;border-radius:5px;border:1px solid rgba(255,255,255,.28)}
+.gemstack .gnum{font-size:12px;font-weight:700;color:var(--txt)}
+.gemstack .glab{font-size:10px;color:var(--muted)}
+.gemstack .kbd{position:absolute;left:4px;top:3px;font-size:9.5px;line-height:1;color:var(--dim);
+  border:1px solid var(--line2);border-radius:4px;padding:1px 3px;background:var(--bg3)}
+.gemstack.sel .kbd{color:var(--accent-w);border-color:#3a5a86;background:#1d2c40}
+#toast{position:fixed;left:50%;bottom:38px;transform:translate(-50%,12px);background:#39434f;
+  color:#f0f4f8;font-size:12.5px;padding:9px 16px;border-radius:20px;opacity:0;pointer-events:none;
+  border:1px solid var(--line2);
+  transition:.22s;z-index:99;box-shadow:0 8px 26px rgba(0,0,0,.5);max-width:80vw}
+#toast.on{opacity:.97;transform:translate(-50%,0)}
+.selbar{display:flex;align-items:center;gap:9px;min-height:32px;
+  background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:5px 10px}
+.selbar .tip{color:var(--muted);font-size:12px}
+/* 牌桌 */
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:flex;gap:9px;align-items:stretch}
+.rowlab{width:40px;flex:none;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;background:var(--bg2);border:1px solid var(--line);border-radius:9px;
+  font-size:11px;color:var(--muted)}
+.rowlab b{font-size:15px;color:var(--txt)}
+.rowlab .dleft{font-size:10px;color:var(--dim)}
+.card{width:126px;flex:none;background:#1b222b;border:1px solid var(--line);border-radius:9px;
+  padding:7px 8px 6px;position:relative;display:flex;flex-direction:column;height:126px}
+.card.empty{background:#161c23;border-style:dashed}
+.card .stripe{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:9px 0 0 9px}
+.card .pt{font-weight:700;font-size:15px;color:var(--gold);margin-left:4px;min-height:19px}
+.card .bmark{position:absolute;right:8px;top:7px;width:15px;height:15px;border-radius:4px;
+  border:1px solid rgba(255,255,255,.28);transform:rotate(14deg)}
+.card .cost{display:flex;flex-wrap:wrap;gap:3px;margin:5px 0 0 3px}
+.card .eff{display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin:5px 0 0 3px;
+  padding-top:4px;border-top:1px dashed var(--line)}
+.card .efflab{font-size:10px;color:var(--muted);letter-spacing:1px}
+.chip.ghost{background:transparent !important;border-width:1.5px;border-style:solid}
+.card .lvt{position:absolute;left:11px;bottom:6px;font-size:10px;color:var(--dim)}
+.card .ops{position:absolute;right:7px;bottom:5px;display:flex;gap:4px}
+.card .ops button{padding:2px 7px;font-size:11px}
+.card.aff{border-color:#4fbf7b;box-shadow:0 2px 10px rgba(79,191,123,.16)}
+.card .tag{position:absolute;left:10px;bottom:6px;font-size:10px;color:var(--green)}
+.chip{min-width:19px;height:19px;border-radius:5px;display:inline-flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.26);padding:0 3px}
+.chip.dim{opacity:.42}
+.chip.gold{background:#d9a92c;color:#3a2a06}
+/* 玩家 */
+.pl{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px 9px;position:relative}
+.pl.cur{border-color:var(--accent);box-shadow:0 0 0 2px rgba(77,142,247,.3)}
+.pl .ph{display:flex;align-items:center;gap:7px}
+.pl .pname{font-weight:700;font-size:13px}
+.pl .ppts{margin-left:auto;font-size:15px;font-weight:700;color:var(--danger)}
+.pl .ppts small{font-size:10px;color:var(--muted);font-weight:400}
+.pl .prow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:6px}
+.pl .plab{font-size:10px;color:var(--muted);width:28px;flex:none}
+.pl .res{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.minicard{width:74px;border:1px solid var(--line2);border-radius:7px;padding:4px 5px;position:relative;background:#1b222b}
+.minicard .mpt{font-weight:700;color:var(--gold);font-size:12px}
+.minicard .mcost{display:flex;gap:2px;flex-wrap:wrap;margin-top:3px}
+.minicard .mcost .chip{min-width:15px;height:15px;font-size:10px;border-radius:4px}
+.minicard button{margin-top:4px;width:100%;padding:2px 0;font-size:11px}
+.logbox{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.logtitle{font-size:12px;color:var(--muted);margin-bottom:5px}
+#log{max-height:270px;overflow:auto;font-size:11.5px;line-height:1.65;color:var(--txt2)}
+#log div{padding:1px 0;border-bottom:1px dashed #232b34}
+#log .me{color:var(--accent-w)}
+#log .sys{color:var(--gold)}
+/* 弹窗 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;
+  align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal.on{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:20px 22px;max-width:620px;width:100%;
+  box-shadow:0 18px 50px rgba(0,0,0,.6);max-height:88vh;overflow:auto}
+.mbox h3{margin:0 0 12px;font-size:16px}
+.optrow{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}
+.opt{border:1px solid var(--line2);border-radius:9px;padding:9px 14px;cursor:pointer;background:var(--bg3)}
+.opt.on{border-color:var(--accent);background:#1d2c40;box-shadow:0 0 0 2px rgba(77,142,247,.28)}
+.opt b{display:block;font-size:13px}
+.opt span{font-size:11px;color:var(--muted)}
+.discard-row{display:flex;align-items:center;gap:7px;margin:6px 0}
+.discard-row .chip{width:24px;height:24px;font-size:12px}
+.resbox{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.rescard{background:#1b222b;border:1px solid var(--line);border-radius:10px;padding:11px 14px;min-width:140px}
+.rescard b{font-size:20px;display:block;color:var(--danger)}
+.rescard.win{border-color:var(--gold2);background:var(--win)}
+.hand{background:#1b222b;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.hand .hh{font-size:13px;margin-bottom:6px}
+.hand .hchips{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.hcard{width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;border:1px solid rgba(255,255,255,.26)}
+.hcard.white{background:#dfe9f2;color:#2b3a4a}
+.hcard.blue{background:#3b82e0}.hcard.green{background:#35a866}
+.hcard.red{background:#d3453e}.hcard.black{background:#6b5f55}
+.hand .hsum{font-size:11.5px;color:var(--muted);line-height:1.5}
+.prof{background:#1b222b;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.prof .ph{font-size:13px;margin-bottom:4px}
+.prof ul{margin:0;padding-left:18px;font-size:12.5px;line-height:1.8;color:var(--txt2)}
+.prof ul b{color:var(--txt)}
+.mbox h4{font-size:13px;margin:16px 0 6px;color:var(--txt)}
+.adv{margin:0;padding-left:20px;font-size:12.5px;line-height:1.85;color:var(--txt2)}
+.adv li{margin:3px 0}
+.adv b{color:var(--danger)}
+.htab{width:100%;border-collapse:collapse;font-size:12px}
+.htab th{text-align:left;color:var(--muted);font-weight:400;padding:4px 6px;border-bottom:1px solid var(--line)}
+.htab td{padding:5px 6px;border-bottom:1px dashed #232b34;vertical-align:top}
+.htab button{padding:2px 8px;font-size:11px}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:11.5px}
+.seedbar{background:#1b222b;border:1px solid var(--line);border-radius:8px;padding:7px 10px;
+  font-size:12px;color:var(--txt2);margin-bottom:12px;display:flex;align-items:center;flex-wrap:wrap}
+.seedbar button{padding:2px 9px;font-size:11px}
+details{margin-top:8px;font-size:12px;color:var(--txt2)}
+details summary{cursor:pointer;color:var(--muted)}
+details p{margin:7px 0 0;line-height:1.75}
+@media(max-width:1080px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">璀璨宝石 <span>Splendor · 网页版</span></div>
+    <div class="hud">
+      <span id="turnInfo">—</span>
+      <button id="btnHint">提示最佳走法</button>
+      <button id="btnReview">导出复盘</button>
+      <button id="btnHistory">历史对局</button>
+      <span class="zoomctl"><button id="btnZoomOut" title="缩小界面">A−</button><button id="btnZoomIn" title="放大界面">A＋</button></span>
+      <button id="btnNew">新开一局</button>
+    </div>
+  </header>
+  <div class="layout">
+    <main>
+      <div class="nobles" id="nobles"></div>
+      <div class="panel" style="padding:8px 12px;align-self:flex-start">
+        <div class="gems" id="gemPool"></div>
+      </div>      <div class="selbar" id="selBar"><span class="tip">点击宝石堆拿取：选 3 种不同颜色，或同一颜色点两次（拿 2 个）</span></div>
+      <div class="rows" id="board"></div>
+      <details>
+        <summary>规则速查</summary>
+        <p>每回合四选一：① 拿 3 枚不同色宝石（供应不足时可少拿）；② 拿 2 枚同色（该色剩余 ≥4）；③ 保留 1 张牌 + 拿 1 黄金（手上最多留 3 张）；④ 买 1 张牌。<br>
+        回合结束手上宝石（含黄金）最多 10 枚，超了要弃；卡牌奖励可永久抵扣成本，黄金当任意色。<br>
+        满足贵族条件时立刻获得（每回合最多 1 位，+3 分）。<br>
+        有人达到 15 分后，本轮走完才结算；分高者胜，同分则买牌少者胜。</p>
+      </details>
+    </main>
+    <aside>
+      <div id="players"></div>
+      <div class="logbox"><div class="logtitle">对局记录</div><div id="log"></div></div>
+    </aside>
+  </div>
+</div>
+<div class="modal" id="modal"></div>
+
+<script id="data">
+const CARDS=[{"id":"L1-black-0","level":1,"bonus":"black","prestige":0,"cost":{"white":1,"blue":1,"green":1,"red":1}},{"id":"L1-black-1","level":1,"bonus":"black","prestige":0,"cost":{"white":1,"blue":2,"green":1,"red":1}},{"id":"L1-black-2","level":1,"bonus":"black","prestige":0,"cost":{"white":2,"blue":2,"red":1}},{"id":"L1-black-3","level":1,"bonus":"black","prestige":0,"cost":{"green":1,"red":3,"black":1}},{"id":"L1-black-4","level":1,"bonus":"black","prestige":0,"cost":{"green":2,"red":1}},{"id":"L1-black-5","level":1,"bonus":"black","prestige":0,"cost":{"white":2,"green":2}},{"id":"L1-black-6","level":1,"bonus":"black","prestige":0,"cost":{"green":3}},{"id":"L1-black-7","level":1,"bonus":"black","prestige":1,"cost":{"blue":4}},{"id":"L1-blue-8","level":1,"bonus":"blue","prestige":0,"cost":{"white":1,"green":1,"red":1,"black":1}},{"id":"L1-blue-9","level":1,"bonus":"blue","prestige":0,"cost":{"white":1,"green":1,"red":2,"black":1}},{"id":"L1-blue-10","level":1,"bonus":"blue","prestige":0,"cost":{"white":1,"green":2,"red":2}},{"id":"L1-blue-11","level":1,"bonus":"blue","prestige":0,"cost":{"blue":1,"green":3,"red":1}},{"id":"L1-blue-12","level":1,"bonus":"blue","prestige":0,"cost":{"white":1,"black":2}},{"id":"L1-blue-13","level":1,"bonus":"blue","prestige":0,"cost":{"green":2,"black":2}},{"id":"L1-blue-14","level":1,"bonus":"blue","prestige":0,"cost":{"black":3}},{"id":"L1-blue-15","level":1,"bonus":"blue","prestige":1,"cost":{"red":4}},{"id":"L1-white-16","level":1,"bonus":"white","prestige":0,"cost":{"blue":1,"green":1,"red":1,"black":1}},{"id":"L1-white-17","level":1,"bonus":"white","prestige":0,"cost":{"blue":1,"green":2,"red":1,"black":1}},{"id":"L1-white-18","level":1,"bonus":"white","prestige":0,"cost":{"blue":2,"green":2,"black":1}},{"id":"L1-white-19","level":1,"bonus":"white","prestige":0,"cost":{"white":3,"blue":1,"black":1}},{"id":"L1-white-20","level":1,"bonus":"white","prestige":0,"cost":{"red":2,"black":1}},{"id":"L1-white-21","level":1,"bonus":"white","prestige":0,"cost":{"blue":2,"black":2}},{"id":"L1-white-22","level":1,"bonus":"white","prestige":0,"cost":{"blue":3}},{"id":"L1-white-23","level":1,"bonus":"white","prestige":1,"cost":{"green":4}},{"id":"L1-green-24","level":1,"bonus":"green","prestige":0,"cost":{"white":1,"blue":1,"red":1,"black":1}},{"id":"L1-green-25","level":1,"bonus":"green","prestige":0,"cost":{"white":1,"blue":1,"red":1,"black":2}},{"id":"L1-green-26","level":1,"bonus":"green","prestige":0,"cost":{"blue":1,"red":2,"black":2}},{"id":"L1-green-27","level":1,"bonus":"green","prestige":0,"cost":{"white":1,"blue":3,"green":1}},{"id":"L1-green-28","level":1,"bonus":"green","prestige":0,"cost":{"white":2,"blue":1}},{"id":"L1-green-29","level":1,"bonus":"green","prestige":0,"cost":{"blue":2,"red":2}},{"id":"L1-green-30","level":1,"bonus":"green","prestige":0,"cost":{"red":3}},{"id":"L1-green-31","level":1,"bonus":"green","prestige":1,"cost":{"black":4}},{"id":"L1-red-32","level":1,"bonus":"red","prestige":0,"cost":{"white":1,"blue":1,"green":1,"black":1}},{"id":"L1-red-33","level":1,"bonus":"red","prestige":0,"cost":{"white":2,"blue":1,"green":1,"black":1}},{"id":"L1-red-34","level":1,"bonus":"red","prestige":0,"cost":{"white":2,"green":1,"black":2}},{"id":"L1-red-35","level":1,"bonus":"red","prestige":0,"cost":{"white":1,"red":1,"black":3}},{"id":"L1-red-36","level":1,"bonus":"red","prestige":0,"cost":{"blue":2,"green":1}},{"id":"L1-red-37","level":1,"bonus":"red","prestige":0,"cost":{"white":2,"red":2}},{"id":"L1-red-38","level":1,"bonus":"red","prestige":0,"cost":{"white":3}},{"id":"L1-red-39","level":1,"bonus":"red","prestige":1,"cost":{"white":4}},{"id":"L2-black-40","level":2,"bonus":"black","prestige":1,"cost":{"white":3,"blue":2,"green":2}},{"id":"L2-black-41","level":2,"bonus":"black","prestige":1,"cost":{"white":3,"green":3,"black":2}},{"id":"L2-black-42","level":2,"bonus":"black","prestige":2,"cost":{"blue":1,"green":4,"red":2}},{"id":"L2-black-43","level":2,"bonus":"black","prestige":2,"cost":{"green":5,"red":3}},{"id":"L2-black-44","level":2,"bonus":"black","prestige":2,"cost":{"white":5}},{"id":"L2-black-45","level":2,"bonus":"black","prestige":3,"cost":{"black":6}},{"id":"L2-blue-46","level":2,"bonus":"blue","prestige":1,"cost":{"blue":2,"green":2,"red":3}},{"id":"L2-blue-47","level":2,"bonus":"blue","prestige":1,"cost":{"blue":2,"green":3,"black":3}},{"id":"L2-blue-48","level":2,"bonus":"blue","prestige":2,"cost":{"white":5,"blue":3}},{"id":"L2-blue-49","level":2,"bonus":"blue","prestige":2,"cost":{"white":2,"red":1,"black":4}},{"id":"L2-blue-50","level":2,"bonus":"blue","prestige":2,"cost":{"blue":5}},{"id":"L2-blue-51","level":2,"bonus":"blue","prestige":3,"cost":{"blue":6}},{"id":"L2-white-52","level":2,"bonus":"white","prestige":1,"cost":{"green":3,"red":2,"black":2}},{"id":"L2-white-53","level":2,"bonus":"white","prestige":1,"cost":{"white":2,"blue":3,"red":3}},{"id":"L2-white-54","level":2,"bonus":"white","prestige":2,"cost":{"green":1,"red":4,"black":2}},{"id":"L2-white-55","level":2,"bonus":"white","prestige":2,"cost":{"red":5,"black":3}},{"id":"L2-white-56","level":2,"bonus":"white","prestige":2,"cost":{"red":5}},{"id":"L2-white-57","level":2,"bonus":"white","prestige":3,"cost":{"white":6}},{"id":"L2-green-58","level":2,"bonus":"green","prestige":1,"cost":{"white":3,"green":2,"red":3}},{"id":"L2-green-59","level":2,"bonus":"green","prestige":1,"cost":{"white":2,"blue":3,"black":2}},{"id":"L2-green-60","level":2,"bonus":"green","prestige":2,"cost":{"white":4,"blue":2,"black":1}},{"id":"L2-green-61","level":2,"bonus":"green","prestige":2,"cost":{"blue":5,"green":3}},{"id":"L2-green-62","level":2,"bonus":"green","prestige":2,"cost":{"green":5}},{"id":"L2-green-63","level":2,"bonus":"green","prestige":3,"cost":{"green":6}},{"id":"L2-red-64","level":2,"bonus":"red","prestige":1,"cost":{"white":2,"red":2,"black":3}},{"id":"L2-red-65","level":2,"bonus":"red","prestige":1,"cost":{"blue":3,"red":2,"black":3}},{"id":"L2-red-66","level":2,"bonus":"red","prestige":2,"cost":{"white":1,"blue":4,"green":2}},{"id":"L2-red-67","level":2,"bonus":"red","prestige":2,"cost":{"white":3,"black":5}},{"id":"L2-red-68","level":2,"bonus":"red","prestige":2,"cost":{"black":5}},{"id":"L2-red-69","level":2,"bonus":"red","prestige":3,"cost":{"red":6}},{"id":"L3-black-70","level":3,"bonus":"black","prestige":3,"cost":{"white":3,"blue":3,"green":5,"red":3}},{"id":"L3-black-71","level":3,"bonus":"black","prestige":4,"cost":{"red":7}},{"id":"L3-black-72","level":3,"bonus":"black","prestige":4,"cost":{"green":3,"red":6,"black":3}},{"id":"L3-black-73","level":3,"bonus":"black","prestige":5,"cost":{"red":7,"black":3}},{"id":"L3-blue-74","level":3,"bonus":"blue","prestige":3,"cost":{"white":3,"green":3,"red":3,"black":5}},{"id":"L3-blue-75","level":3,"bonus":"blue","prestige":4,"cost":{"white":7}},{"id":"L3-blue-76","level":3,"bonus":"blue","prestige":4,"cost":{"white":6,"blue":3,"black":3}},{"id":"L3-blue-77","level":3,"bonus":"blue","prestige":5,"cost":{"white":7,"blue":3}},{"id":"L3-white-78","level":3,"bonus":"white","prestige":3,"cost":{"blue":3,"green":3,"red":5,"black":3}},{"id":"L3-white-79","level":3,"bonus":"white","prestige":4,"cost":{"black":7}},{"id":"L3-white-80","level":3,"bonus":"white","prestige":4,"cost":{"white":3,"red":3,"black":6}},{"id":"L3-white-81","level":3,"bonus":"white","prestige":5,"cost":{"white":3,"black":7}},{"id":"L3-green-82","level":3,"bonus":"green","prestige":3,"cost":{"white":5,"blue":3,"red":3,"black":3}},{"id":"L3-green-83","level":3,"bonus":"green","prestige":4,"cost":{"blue":7}},{"id":"L3-green-84","level":3,"bonus":"green","prestige":4,"cost":{"white":3,"blue":6,"green":3}},{"id":"L3-green-85","level":3,"bonus":"green","prestige":5,"cost":{"blue":7,"green":3}},{"id":"L3-red-86","level":3,"bonus":"red","prestige":3,"cost":{"white":3,"blue":5,"green":3,"black":3}},{"id":"L3-red-87","level":3,"bonus":"red","prestige":4,"cost":{"green":7}},{"id":"L3-red-88","level":3,"bonus":"red","prestige":4,"cost":{"blue":3,"green":6,"red":3}},{"id":"L3-red-89","level":3,"bonus":"red","prestige":5,"cost":{"green":7,"red":3}}];
+const NOBLES=[{"id":"N1","name":"Machiavelli（马基雅维利）","prestige":3,"requires":{"white":4,"blue":4}},{"id":"N2","name":"Mary Stuart（苏格兰的玛丽）","prestige":3,"requires":{"green":4,"red":4}},{"id":"N3","name":"Isabella I of Castile（伊莎贝拉一世）","prestige":3,"requires":{"black":4,"white":4}},{"id":"N4","name":"Suleiman the Magnificent（苏莱曼大帝）","prestige":3,"requires":{"blue":4,"green":4}},{"id":"N5","name":"Henry VIII（亨利八世）","prestige":3,"requires":{"red":4,"black":4}},{"id":"N6","name":"Anne of Brittany（布列塔尼的安妮）","prestige":3,"requires":{"white":3,"blue":3,"green":3}},{"id":"N7","name":"Catherine de Medici（凯瑟琳·德·美第奇）","prestige":3,"requires":{"blue":3,"green":3,"red":3}},{"id":"N8","name":"Francis I（弗朗索瓦一世）","prestige":3,"requires":{"green":3,"red":3,"black":3}},{"id":"N9","name":"Charles V（查理五世）","prestige":3,"requires":{"red":3,"black":3,"white":3}},{"id":"N10","name":"Elisabeth of Austria（奥地利的伊丽莎白）","prestige":3,"requires":{"black":3,"white":3,"blue":3}}];
+</script>
+
+<script id="engine">
+/* ================= 引擎（纯逻辑，无 DOM 依赖，可在 Node 中自测） ================= */
+var GEMS=['white','blue','green','red','black'];
+var GEM_CN={white:'钻石',blue:'蓝宝石',green:'绿宝石',red:'红宝石',black:'黑玛瑙'};
+var GEM_HEX={white:'#e7eef5',blue:'#3b82e0',green:'#35a866',red:'#d3453e',black:'#6b5f55'};
+var GEM_FG={white:'#26323d',blue:'#fff',green:'#fff',red:'#fff',black:'#fff'};
+var AI_P={
+  easy:{noise:0.65,noble:0.5,deny:0,reserve:0.10,priceW:0.7},
+  mid :{noise:0.22,noble:1.5,deny:0.4,reserve:0.50,priceW:0.9},
+  hard:{noise:0.06,noble:2.6,deny:1.2,reserve:1.00,priceW:1.0}
+};
+
+function mulberry32(a){return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuffle(arr,rnd){for(var i=arr.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));
+  var t=arr[i];arr[i]=arr[j];arr[j]=t;}return arr;}
+function sum(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s;}
+
+function newGame(n,seed,diff){
+  var rnd=mulberry32(seed||12345);
+  var deck={1:[],2:[],3:[]};
+  CARDS.forEach(function(c){deck[c.level].push({id:c.id,level:c.level,bonus:c.bonus,
+    prestige:c.prestige,cost:Object.assign({},c.cost)});});
+  [1,2,3].forEach(function(k){shuffle(deck[k],rnd);});
+  var per=n===2?4:(n===3?5:7);
+  var S={n:n,diff:diff||'mid',rnd:rnd,gems:{},gold:5,deck:deck,seed:(seed||12345),
+    board:{1:[null,null,null,null],2:[null,null,null,null],3:[null,null,null,null]},
+    nobles:[],players:[],turn:0,over:false,finalRound:false,
+    pending:null,winner:-1,log:[],replay:[],passStreak:0};
+  GEMS.forEach(function(g){S.gems[g]=per;});
+  [1,2,3].forEach(function(lv){for(var i=0;i<4;i++)S.board[lv][i]=deck[lv].pop()||null;});
+  var ns=NOBLES.map(function(x){return{id:x.id,name:x.name,prestige:3,
+    requires:Object.assign({},x.requires),takenBy:-1};});
+  shuffle(ns,rnd);
+  S.nobles=ns.slice(0,n+1);
+  for(var i=0;i<n;i++){
+    S.players.push({idx:i,name:i===0?'你':'AI-'+i,human:i===0,
+      tokens:{white:0,blue:0,green:0,red:0,black:0},gold:0,
+      bonuses:{white:0,blue:0,green:0,red:0,black:0},cards:[],reserved:[],points:0,nobles:[]});
+  }
+  return S;
+}
+
+function totalTokens(p){var s=p.gold;for(var i=0;i<GEMS.length;i++)s+=p.tokens[GEMS[i]];return s;}
+function stackOf(S,lv,i){var b=S.board[lv];return(b&&i>=0&&i<4)?b[i]:null;}
+function cardOf(S,pi,a){
+  var p=S.players[pi];
+  if(a.type==='buy'){return a.from==='reserved'?p.reserved[a.index]:stackOf(S,a.level,a.slot);}
+  return stackOf(S,a.level,a.slot);
+}
+/* 支付方案：先用卡牌奖励抵扣，再用宝石，最后用黄金。返回 null = 买不起 */
+function payPlan(p,cost){
+  var plan={tokens:{},gold:0},gold=0;
+  for(var i=0;i<GEMS.length;i++){
+    var g=GEMS[i],need=cost[g]||0;
+    var d=need-(p.bonuses[g]||0);
+    if(d<=0)continue;
+    var use=Math.min(p.tokens[g],d);
+    if(use>0)plan.tokens[g]=use;
+    d-=use;gold+=d;
+  }
+  if(gold>p.gold)return null;
+  plan.gold=gold;
+  return plan;
+}
+/* 目标卡还需补多少宝石（不含黄金） */
+function needMap(p,cost){
+  var m={},n=0;
+  for(var i=0;i<GEMS.length;i++){
+    var g=GEMS[i],d=(cost[g]||0)-(p.bonuses[g]||0);
+    if(d>0){m[g]=d;n+=d;}
+  }
+  return{m:m,n:n};
+}
+function legalActions(S,pi){
+  var p=S.players[pi],acts=[],lv,i,g,a,b,c,avail;
+  for(lv=1;lv<=3;lv++)for(i=0;i<4;i++){
+    var cd=stackOf(S,lv,i);
+    if(cd&&payPlan(p,cd.cost))acts.push({type:'buy',from:'board',level:lv,slot:i});
+  }
+  for(i=0;i<p.reserved.length;i++)
+    if(payPlan(p,p.reserved[i].cost))acts.push({type:'buy',from:'reserved',index:i});
+  if(p.reserved.length<3){
+    for(lv=1;lv<=3;lv++)for(i=0;i<4;i++)
+      if(stackOf(S,lv,i))acts.push({type:'reserve',level:lv,slot:i});
+  }
+  avail=[];
+  for(i=0;i<GEMS.length;i++)if(S.gems[GEMS[i]]>0)avail.push(GEMS[i]);
+  /* 官方规则：拿 3 枚不同色；若可选颜色不足 3 种，则把能拿的都拿走 */
+  if(avail.length>=3){
+    for(a=0;a<avail.length;a++)for(b=a+1;b<avail.length;b++)for(c=b+1;c<avail.length;c++)
+      acts.push({type:'take',list:[avail[a],avail[b],avail[c]]});
+  }else if(avail.length>0){
+    acts.push({type:'take',list:avail.slice()});
+  }
+  for(i=0;i<GEMS.length;i++)if(S.gems[GEMS[i]]>=4)acts.push({type:'take',list:[GEMS[i],GEMS[i]]});
+  if(!acts.length)acts.push({type:'pass'});
+  return acts;
+}
+function applyAction(S,pi,a){
+  var p=S.players[pi],i,cd,plan,g;
+  S.lastGold=0;
+  if(a.type==='pass'){S.passStreak=(S.passStreak||0)+1;return true;}
+  S.passStreak=0;
+  if(a.type==='take'){
+    var list=a.list.slice(),seen={};
+    if(list.length===2&&list[0]===list[1]){
+      if(S.gems[list[0]]<4)return false;
+    }else{
+      if(list.length<1||list.length>3)return false;
+      for(i=0;i<list.length;i++){
+        if(seen[list[i]])return false;
+        seen[list[i]]=1;
+      }
+    }
+    for(i=0;i<list.length;i++)if(S.gems[list[i]]<=0)return false;
+    for(i=0;i<list.length;i++){S.gems[list[i]]--;p.tokens[list[i]]++;}
+    S.passStreak=0;
+    return true;
+  }
+  if(a.type==='reserve'){
+    if(p.reserved.length>=3)return false;
+    cd=stackOf(S,a.level,a.slot);
+    if(!cd)return false;
+    S.board[a.level][a.slot]=S.deck[a.level].pop()||null;
+    p.reserved.push(cd);
+    if(S.gold>0){S.gold--;p.gold++;S.lastGold=1;}
+    return true;
+  }
+  if(a.type==='buy'){
+    cd=cardOf(S,pi,a);
+    if(!cd)return false;
+    plan=payPlan(p,cd.cost);
+    if(!plan)return false;
+    for(i=0;i<GEMS.length;i++){
+      g=GEMS[i];
+      if(plan.tokens[g]){p.tokens[g]-=plan.tokens[g];S.gems[g]+=plan.tokens[g];}
+    }
+    if(plan.gold){p.gold-=plan.gold;S.gold+=plan.gold;}
+    if(a.from==='reserved'){p.reserved.splice(a.index,1);}
+    else{S.board[a.level][a.slot]=S.deck[a.level].pop()||null;}
+    p.cards.push(cd);p.bonuses[cd.bonus]++;p.points+=cd.prestige;
+    return true;
+  }
+  return false;
+}
+function applyDiscard(S,pi,list){
+  var p=S.players[pi];
+  for(var i=0;i<list.length;i++){
+    var g=list[i];
+    if(g==='gold'){if(p.gold>0){p.gold--;S.gold++;}}
+    else if(p.tokens[g]>0){p.tokens[g]--;S.gems[g]++;}
+  }
+}
+function claimable(S,p){
+  return S.nobles.filter(function(nb){
+    return nb.takenBy<0&&GEMS.every(function(g){return(nb.requires[g]||0)<=(p.bonuses[g]||0);});
+  });
+}
+function claimNoble(S,pi,id){
+  for(var i=0;i<S.nobles.length;i++){
+    var nb=S.nobles[i];
+    if(nb.id===id&&nb.takenBy<0){nb.takenBy=pi;S.players[pi].nobles.push(nb);
+      S.players[pi].points+=3;return true;}
+  }
+  return false;
+}
+function afterAction(S){
+  if(totalTokens(S.players[S.turn])>10){S.pending={type:'discard',pi:S.turn};return;}
+  stepNoble(S);
+}
+function stepNoble(S){
+  var p=S.players[S.turn],el=claimable(S,p);
+  if(!el.length)return advanceTurn(S);
+  if(el.length===1){claimNoble(S,S.turn,el[0].id);return advanceTurn(S);}
+  S.pending={type:'noble',pi:S.turn,options:el.map(function(x){return x.id;})};
+}
+function advanceTurn(S){
+  var p=S.players[S.turn];
+  if(p.points>=15&&!S.finalRound){S.finalRound=true;}
+  var nx=(S.turn+1)%S.n;
+  /* 有人到 15 分后，把本轮走完（轮回到首家）才结束，保证各玩家回合数相同 */
+  if(S.finalRound&&nx===0){S.over=true;finishGame(S);return;}
+  if((S.passStreak||0)>=S.n){S.over=true;finishGame(S);return;}
+  S.turn=nx;
+}
+function finishGame(S){
+  var best=0,bp=-1,bc=1e9;
+  for(var i=0;i<S.n;i++){
+    var p=S.players[i];
+    if(p.points>bp||(p.points===bp&&p.cards.length<bc)){bp=p.points;bc=p.cards.length;best=i;}
+  }
+  S.winner=best;
+}
+/* ================= 动作描述与复盘记录（纯逻辑，UI 与测试共用） ================= */
+function shortName(c){
+  var pts=c.prestige?c.prestige+'分':'0分';
+  return'L'+c.level+' · '+GEM_CN[c.bonus]+'奖励 · '+pts;
+}
+/* 动作生效前先抓下目标卡（买/留之后牌位会立刻补新牌，事后取会取错） */
+function captureCard(S,pi,a){
+  if(a.type==='buy')return cardOf(S,pi,a);
+  if(a.type==='reserve')return stackOf(S,a.level,a.slot);
+  return null;
+}
+function describe(S,pi,a,card,goldTaken){
+  var p=S.players[pi],who=p.human?'你':p.name;
+  if(a.type==='pass')return{t:who+' 无合法动作，跳过',cls:p.human?'me':''};
+  if(a.type==='take'){
+    if(a.list.length===2&&a.list[0]===a.list[1])
+      return{t:who+' 拿取 2 枚 '+GEM_CN[a.list[0]],cls:p.human?'me':''};
+    return{t:who+' 拿取 '+a.list.map(function(g){return GEM_CN[g];}).join('、'),cls:p.human?'me':''};
+  }
+  if(a.type==='reserve'){
+    var c=card||stackOf(S,a.level,a.slot);
+    return{t:who+' 保留 '+shortName(c)+(goldTaken?'（拿取 1 黄金）':''),cls:p.human?'me':''};
+  }
+  var cd=card||cardOf(S,pi,a);
+  return{t:who+' 购入 '+shortName(cd),cls:p.human?'me':''};
+}
+/* info: {text, avail, card, plan} —— 卡与支付方案必须在动作生效前抓下来 */
+function recAction(S,pi,a,info){
+  var p=S.players[pi];
+  var e={pi:pi,kind:a.type,text:info.text,pts:p.points,
+    availP:info.avail?info.avail.prestige:-1,availName:info.avail?shortName(info.avail):''};
+  e.a={type:a.type};
+  if(a.type==='take'){e.list=a.list.slice();e.a.list=a.list.slice();}
+  if(a.type==='reserve'){e.a.level=a.level;e.a.slot=a.slot;}
+  if(a.type==='buy'){
+    e.a.from=a.from;e.a.level=a.level;e.a.slot=a.slot;e.a.index=a.index;
+    var c=info.card;
+    e.level=c?c.level:1;e.prestige=c?c.prestige:0;e.bonus=c?c.bonus:'';
+    if(a.from==='reserved')e.fromReserved=1;
+    if(info.plan){
+      e.paid=Object.assign({},info.plan.tokens);
+      e.paidGold=info.plan.gold||0;
+    }
+  }
+  S.replay.push(e);
+}
+function recDiscard(S,pi,list){
+  S.replay.push({pi:pi,kind:'discard',gems:list.slice(),
+    text:S.players[pi].name+' 弃掉 '+list.map(function(g){return g==='gold'?'黄金':GEM_CN[g];}).join('、')});
+}
+function recNoble(S,pi,nb){
+  S.replay.push({pi:pi,kind:'noble',noble:nb?nb.id:null,
+    text:S.players[pi].name+' 获得贵族 '+(nb?nb.name:'')+'（+3 分）'});
+}
+/* ================= 复盘 / 分析 ================= */
+/* 回合开始时，当前玩家买得起的最贵（分最高）的卡 */
+function bestAffordable(S,pi){
+  var p=S.players[pi],best=null,i,lv;
+  for(lv=1;lv<=3;lv++)for(i=0;i<4;i++){
+    var c=stackOf(S,lv,i);
+    if(c&&payPlan(p,c.cost)&&(!best||c.prestige>best.prestige))best=c;
+  }
+  for(i=0;i<p.reserved.length;i++){
+    var c2=p.reserved[i];
+    if(payPlan(p,c2.cost)&&(!best||c2.prestige>best.prestige))best=c2;
+  }
+  return best;
+}
+/* 终局时，离最近的一个未被拿走的贵族还差几颗 */
+function nobleGap(S,pi){
+  var p=S.players[pi],best=null,i,j;
+  for(i=0;i<S.nobles.length;i++){
+    var nb=S.nobles[i];
+    if(nb.takenBy>=0)continue;
+    var need=0,detail=[];
+    for(j=0;j<GEMS.length;j++){
+      var g=GEMS[j],d=(nb.requires[g]||0)-p.bonuses[g];
+      if(d>0){need+=d;detail.push(GEM_CN[g]+'差'+d);}
+    }
+    if(!best||need<best.need)best={need:need,name:nb.name,detail:detail};
+  }
+  return best;
+}
+function phaseOf(t,T){ if(!T)return 1; var a=T/3; return t<=a?1:(t<=2*a?2:3); }
+function scoreAt(seq,t){ if(t<=0)return 0; return seq[Math.min(t,seq.length)-1]||0; }
+function nobleNamesOf(S,pi){
+  var p=S.players[pi],ids=[],out=[],i,j;
+  if(p.nobles)for(i=0;i<p.nobles.length;i++){
+    var nb=p.nobles[i];
+    ids.push((typeof nb==='string')?nb:(nb&&nb.id));
+  }
+  for(i=0;i<ids.length;i++){
+    var nm='';
+    if(S.nobles)for(j=0;j<S.nobles.length;j++)if(S.nobles[j].id===ids[i]){nm=S.nobles[j].name;break;}
+    out.push(nm||String(ids[i]));
+  }
+  return out;
+}
+/* 由终局数据反推一位玩家的"大致思路"（描述性，不做评判） */
+function playerProfile(p){
+  var C1={white:'白',blue:'蓝',green:'绿',red:'红',black:'黑'};
+  var L=p.buys||[{n:0,pts:0},{n:0,pts:0},{n:0,pts:0}],tot=L[0].n+L[1].n+L[2].n;
+  var bd=[],j;
+  for(j=0;j<GEMS.length;j++)bd.push({g:GEMS[j],n:(p.bonuses&&p.bonuses[GEMS[j]])||0});
+  bd.sort(function(x,y){return y.n-x.n;});
+  var sum=0;for(j=0;j<GEMS.length;j++)sum+=bd[j].n;
+  var top3=bd[0].n+bd[1].n+bd[2].n,conc=sum?top3/sum:0;
+  var used=bd.filter(function(x){return x.n>0;});
+  var colorTxt=used.slice(0,3).map(function(x){return C1[x.g]+' '+x.n;}).join('、')||'无';
+  var label;
+  if(sum===0)label='未建成折扣体系';
+  else if(conc>=0.8)label='集中两三色';
+  else if(conc>=0.65)label='三色为主';
+  else label='颜色铺得较散';
+  var lines=[];
+  lines.push('**折扣骨架**：'+label+'——'+colorTxt+'（最多的三色占 '+Math.round(conc*100)+'%）。');
+  var seg=[];
+  if(L[0].n)seg.push('一级 '+L[0].n+' 张打底');
+  if(L[1].n)seg.push('二级 '+L[1].n+' 张（'+L[1].pts+' 分）');
+  if(L[2].n)seg.push('三级 '+L[2].n+' 张（'+L[2].pts+' 分）');
+  lines.push('**建卡路线**：'+(tot?seg.join(' → '):'整局没有买过卡')+'。');
+  if(p.firstBig)lines.push('**转段时机**：第 '+p.firstBig+' 个回合吃到第一张 2 分以上的卡。');
+  else if(tot)lines.push('**转段时机**：整局没有买过 2 分以上的卡，分数全部来自 1 分卡'+(p.nobles?'与贵族':'')+'。');
+  if(p.nobles)lines.push('**贵族**：拿下 '+p.nobles+' 位（+'+p.nobles*3+' 分）'+
+    ((p.nobleNames&&p.nobleNames.length)?('：'+p.nobleNames.join('、')):'')+'。');
+  else if(p.gap)lines.push('**贵族**：未获得；终局离「'+p.gap.name+'」还差 '+p.gap.detail.join('、')+'。');
+  else lines.push('**贵族**：未获得。');
+  var ex=['得分效率 '+p.ppt.toFixed(2)+' 分/回合'];
+  ex.push(p.discards?('超限弃牌 '+p.discards+' 次（'+p.discardGems+' 枚）'):'无超限弃牌');
+  if(p.reserved)ex.push('保留 '+p.reserved+' 张、兑现 '+p.reservedBought+' 张');
+  lines.push('**节奏与周转**：'+ex.join('；')+'。');
+  return {label:label,lines:lines};
+}
+function analyzeGame(S){
+  var i,j,k,e,p,res={players:[],suggestions:[],notes:[],macro:[],micro:[],timeline:[]};
+  var acts=[],buys=[],miss=[],disc=[],discG=[],nob=[],takes=[],used=[],paidG=[],ptsSeq=[];
+  for(i=0;i<S.n;i++){
+    acts[i]=0;buys[i]=[{n:0,pts:0},{n:0,pts:0},{n:0,pts:0}];
+    miss[i]=[];disc[i]=0;discG[i]=0;nob[i]=0;paidG[i]=0;ptsSeq[i]=[];
+    var t={},u={};
+    for(j=0;j<GEMS.length;j++){t[GEMS[j]]=0;u[GEMS[j]]=0;}
+    takes[i]=t;used[i]=u;
+  }
+  /* 第一遍：统计 + 重建每一手之后的比分（找转折点） */
+  var cur=[],discEvents=[];
+  for(i=0;i<S.n;i++)cur[i]=0;
+  for(i=0;i<S.replay.length;i++){
+    e=S.replay[i];
+    if(e.kind==='discard'){
+      disc[e.pi]++;discG[e.pi]+=(e.gems?e.gems.length:0);
+      discEvents.push({turn:acts[e.pi],pi:e.pi,gems:(e.gems||[]).slice()});
+      continue;
+    }
+    if(e.kind==='noble'){
+      nob[e.pi]++;cur[e.pi]=e.pts;
+      res.timeline.push({pi:e.pi,pts:cur.slice()});
+      continue;
+    }
+    acts[e.pi]++;
+    if(e.kind==='buy'){
+      var b=buys[e.pi][e.level-1];b.n++;b.pts+=e.prestige;
+      if(e.paid)for(j=0;j<GEMS.length;j++)used[e.pi][GEMS[j]]+=(e.paid[GEMS[j]]||0);
+      paidG[e.pi]+=(e.paidGold||0);
+    }
+    if(e.kind==='take'&&e.list)for(k=0;k<e.list.length;k++)takes[e.pi][e.list[k]]++;
+    if(e.availP>=2&&e.kind!=='buy')miss[e.pi].push({turn:acts[e.pi],p:e.availP,name:e.availName});
+    cur[e.pi]=e.pts;ptsSeq[e.pi].push(e.pts);
+    res.timeline.push({pi:e.pi,pts:cur.slice()});
+  }
+  /* 第二遍：按阶段（前/中/后 各 1/3）拆解买牌、保留兑现 */
+  var totals=acts.slice(),cnt=[],phaseBuy=[],firstBig=[],resN=[],resBought=[];
+  for(i=0;i<S.n;i++){cnt[i]=0;phaseBuy[i]=[[0,0,0],[0,0,0],[0,0,0]];firstBig[i]=0;resN[i]=0;resBought[i]=0;}
+  for(i=0;i<S.replay.length;i++){
+    e=S.replay[i];
+    if(e.kind==='discard'||e.kind==='noble')continue;
+    cnt[e.pi]++;
+    if(e.kind==='reserve')resN[e.pi]++;
+    if(e.kind==='buy'&&e.fromReserved)resBought[e.pi]++;
+    if(e.kind==='buy'){
+      var ph=phaseOf(cnt[e.pi],totals[e.pi]);
+      phaseBuy[e.pi][ph-1][e.level-1]++;
+      if(!firstBig[e.pi]&&e.prestige>=2)firstBig[e.pi]=cnt[e.pi];
+    }
+  }
+  for(i=0;i<S.n;i++){
+    p=S.players[i];
+    var T=totals[i],hw=Math.floor(T/3);
+    var pp=[scoreAt(ptsSeq[i],hw),scoreAt(ptsSeq[i],2*hw)-scoreAt(ptsSeq[i],hw),
+      scoreAt(ptsSeq[i],T)-scoreAt(ptsSeq[i],2*hw)];
+    res.players.push({name:p.name,human:p.human,points:p.points,cards:p.cards.length,
+      nobles:nob[i],turns:T,buys:buys[i],discards:disc[i],discardGems:discG[i],
+      takes:takes[i],used:used[i],paidG:paidG[i],
+      ppt:T?(p.points/T):0,misses:miss[i],
+      zeroCards:buys[i][0].n,totalBuys:buys[i][0].n+buys[i][1].n+buys[i][2].n,
+      gap:nobleGap(S,i),phaseBuys:phaseBuy[i],phasePts:pp,firstBig:firstBig[i],
+      reserved:resN[i],reservedBought:resBought[i],
+      bonuses:Object.assign({},p.bonuses),gold:p.gold||0,
+      tokens:Object.assign({},p.tokens),
+      cardList:(p.cards||[]).map(function(c){return{level:c.level,bonus:c.bonus,prestige:c.prestige};}),
+      nobleNames:nobleNamesOf(S,i)});
+  }
+  res.profiles=[];
+  for(i=0;i<res.players.length;i++)res.profiles.push(playerProfile(res.players[i]));
+  var me=res.players[0],mg=res.macro,mi=res.micro;
+  var aiPts=0,aiN=0,aiMiss=0,aiFirstBig=0,aiFirstBigN=0;
+  for(i=1;i<S.n;i++){
+    aiPts+=res.players[i].ppt;aiN++;aiMiss+=res.players[i].misses.length;
+    if(res.players[i].firstBig){aiFirstBig+=res.players[i].firstBig;aiFirstBigN++;}
+  }
+  var aiPpt=aiN?aiPts/aiN:0;
+  /* ================= 大思路 ================= */
+  var lastLead=-1;
+  for(i=0;i<res.timeline.length;i++){
+    var t2=res.timeline[i],mx=-1,best=-1;
+    for(j=0;j<S.n;j++)if(t2.pts[j]>mx){mx=t2.pts[j];best=j;}
+    if(best===0&&mx>0)lastLead=i;
+  }
+  var TL=res.timeline.length||1;
+  var leadHand=lastLead<0?0:Math.ceil((lastLead+1)/S.n);
+  var leadRatio=(lastLead+1)/TL;
+  if(S.over&&S.winner!==0){
+    if(lastLead<0)
+      mg.push('本局你**全程没有领先过**。开局可以先定方向：选定一张目标贵族，之后每一次拿宝石和买牌都朝它倾斜。');
+    else if(leadRatio<0.35)
+      mg.push('你只在开局那一小段领先过（到第 **'+leadHand+' 手**），之后整局都在追赶。追分时最忌讳"什么都想要"——越落后越应该认准一到两个颜色猛堆，用折扣把高级卡的价格压下来，而不是每色都收一点。');
+    else
+      mg.push('你大约在第 **'+leadHand+' 手**之后就再没领先过，比赛在**中段**被对手接管。回看走子记录里那前后 5 手，分水岭通常藏在"该转高分卡时还在铺 0 分卡"，或"关键那张被抢走"。');
+  }else if(S.over){
+    mg.push('你在第 **'+leadHand+' 手**之后就一路领先到终局，节奏控制得不错。');
+  }
+  if(me.firstBig)
+    mg.push('你在第 **'+me.firstBig+' 个回合**吃到第一张 2 分以上的卡'+
+      (aiFirstBigN?('（本局 AI 平均第 '+(aiFirstBig/aiFirstBigN).toFixed(1)+' 回合）'):'')+'。'+
+      ((aiFirstBigN&&me.firstBig>aiFirstBig/aiFirstBigN)?'偏晚了一些，可以再提前 2–3 回合：折扣够了就该开始收分。':'这个转段时机是合理的。'));
+  else
+    mg.push('整局你**没有买到过 2 分以上的卡**——只能靠 1 分卡和贵族堆分，效率会明显吃亏。二级卡里「4 费 = 3 分」那几张是全游戏最赚的，值得专门为它攒一次。');
+  var bd=[];for(j=0;j<GEMS.length;j++)bd.push({g:GEMS[j],n:S.players[0].bonuses[GEMS[j]]});
+  bd.sort(function(x,y){return y.n-x.n;});
+  var topN=bd[0].n+bd[1].n+bd[2].n,sum=0;for(j=0;j<GEMS.length;j++)sum+=bd[j].n;
+  if(sum>0&&topN/sum<0.7)
+    mg.push('你的折扣摊得比较散：最多的三色（'+GEM_CN[bd[0].g]+' '+bd[0].n+'、'+GEM_CN[bd[1].g]+' '+bd[1].n+
+      '、'+GEM_CN[bd[2].g]+' '+bd[2].n+'）只占全部折扣的 **'+Math.round(topN/sum*100)+'%**。'+
+      '贵族要的是"某 3–4 色各 3–4 个"，集中火力比平均铺开更快换回那 3 分。');
+  else if(sum>=6)
+    mg.push('折扣集中在 '+GEM_CN[bd[0].g]+'（'+bd[0].n+'）、'+GEM_CN[bd[1].g]+'（'+bd[1].n+'）、'+
+      GEM_CN[bd[2].g]+'（'+bd[2].n+'）上，骨架是对的——后面买高级卡会明显便宜。');
+  if(me.nobles>0)
+    mg.push('拿到 **'+me.nobles+' 位贵族**（+'+me.nobles*3+' 分），这是本局性价比最高的部分。');
+  else if(me.gap)
+    mg.push('一位贵族都没拿到，终局离最近的「'+me.gap.name+'」还差 **'+me.gap.detail.join('、')+
+      '**。贵族 3 分且不消耗行动，下一局开局就把它锁定成目标。');
+  if(aiN&&me.ppt<aiPpt)
+    mg.push('得分效率 **'+me.ppt.toFixed(2)+' 分/回合**，本局 AI 平均 **'+aiPpt.toFixed(2)+
+      '**。差距一般来自两处：回合都花在攒宝石上（买牌太少），或买牌太散（折扣没形成规模）。');
+  else if(aiN&&me.ppt>aiPpt+0.01)
+    mg.push('得分效率 **'+me.ppt.toFixed(2)+' 分/回合**，高于本局 AI 平均（'+aiPpt.toFixed(2)+'），整体节奏是稳的。');
+  else if(aiN)
+    mg.push('得分效率 **'+me.ppt.toFixed(2)+' 分/回合**，与本局 AI 平均（'+aiPpt.toFixed(2)+'）基本持平。');
+  var takeAll=0,useAll=0;
+  for(j=0;j<GEMS.length;j++){takeAll+=me.takes[GEMS[j]];useAll+=me.used[GEMS[j]];}
+  if(takeAll>0){
+    var held=0;for(j=0;j<GEMS.length;j++)held+=S.players[0].tokens[GEMS[j]];
+    mg.push('整局你拿了 **'+takeAll+' 枚宝石**，其中 **'+useAll+' 枚**真正付给了卡牌'+
+      (me.paidG?('，另有 '+me.paidG+' 枚黄金当钱花掉'):'')+
+      '；终局手上还剩 '+held+' 枚、被迫弃掉 '+me.discardGems+' 枚。'+
+      (me.discardGems>0?'拿与用的缺口基本都损失在"超过 10 枚退回"上。':'周转很干净。'));
+  }
+  /* ================= 小细节 ================= */
+  for(i=0;i<Math.min(3,me.misses.length);i++){
+    var mm=me.misses[i];
+    mi.push('第 **'+mm.turn+' 回合**：你当时已经买得起「'+mm.name+'」（'+mm.p+' 分）却选择继续拿宝石。早一轮买到 = 早一轮拿分，还早一轮多一份折扣。');
+  }
+  var shownDisc=0;
+  for(i=0;i<discEvents.length&&shownDisc<3;i++){
+    var de=discEvents[i];
+    if(de.pi!==0)continue;shownDisc++;
+    var list2=de.gems.map(function(g){return g==='gold'?'黄金':GEM_CN[g];}).join('、');
+    mi.push(shownDisc===1
+      ? ('第 **'+de.turn+' 回合**结束时被迫弃掉 '+list2+'：那一手少拿 1 枚、或当回合直接买牌，就不必退回去了。')
+      : ('第 **'+de.turn+' 回合**又弃掉 '+list2+'（本局第 '+shownDisc+' 次超限）。'));
+  }
+  if(me.reserved>0&&me.reservedBought<me.reserved)
+    mi.push('你保留了 **'+me.reserved+' 张**，最后只兑现 **'+me.reservedBought+' 张**。没兑现的保留牌会一直占着手牌位（上限 3），等于少一个"拿黄金"的渠道和一个战术位。');
+  var worst=null,worstGap=0;
+  for(j=0;j<GEMS.length;j++){
+    var g2=GEMS[j],gap=takes[0][g2]-used[0][g2];
+    if(takes[0][g2]>=3&&gap>worstGap){worstGap=gap;worst=g2;}
+  }
+  if(worst)
+    mi.push('**'+GEM_CN[worst]+'** 你拿了 '+takes[0][worst]+' 枚、只用掉 '+used[0][worst]+' 枚，差 '+worstGap+
+      ' 枚。多出来的不是压在手上就是被弃掉——拿之前先确认"这张卡还需要这个颜色吗"。');
+  if(S.players[0].gold>=2)
+    mi.push('终局你手上还压着 **'+S.players[0].gold+' 个黄金**。黄金是万能牌，留在手上升不了分，应该用它补那张一直差一颗的卡。');
+  if(me.discardGems>0)
+    mi.push('被迫弃牌合计 **'+me.discards+' 次 / '+me.discardGems+' 枚**。10 枚是硬上限：到第 8、9 枚时就该规划"下一手是买还是拿"，而不是拿满再说。');
+  if(!mi.length)
+    mi.push('这一局没有明显失误：没有被迫弃牌、没有"买得起却没买"、保留牌也都兑现了。下一步可以把注意力放在**提前 1–2 回合布局贵族**上。');
+  /* 亮点 */
+  if(me.nobles>0)res.notes.push('拿到 '+me.nobles+' 位贵族，白赚 '+(me.nobles*3)+' 分。');
+  if(me.buys[2].n>0)res.notes.push('购入了 '+me.buys[2].n+' 张三级卡（'+me.buys[2].pts+' 分）。');
+  if(me.discardGems===0)res.notes.push('整局没有被迫弃牌，宝石利用率很干净。');
+  if(me.misses.length===0&&me.turns>6)res.notes.push('全程没有"买得起却没买"的回合，出手时机抓得紧。');
+  /* ============ 总回合数 & 局内决策优化 ============ */
+  var totalActs=0,maxTurns=0;
+  for(i=0;i<S.n;i++){
+    totalActs+=res.players[i].turns;
+    if(res.players[i].turns>maxTurns)maxTurns=res.players[i].turns;
+  }
+  res.totals={actions:totalActs,rounds:maxTurns,n:S.n};
+  res.decisions=decisionReview(S);
+  var dec=res.decisions;
+  if(dec.ok){
+    if(dec.all>0)
+      mg.push('**局内决策**：在你自己的 '+dec.checked+' 个回合里，有 **'+dec.all+' 手**存在更优解（AI 评分差 > 1.5）。差距最大的几手列在下面「局内决策优化」里。');
+    else
+      mg.push('**局内决策**：你自己的 '+dec.checked+' 个回合全部经得起复算——每一手都和最优点一致或很接近。');
+    if(dec.verify)mg.push('⚠️ 复盘自检发现不一致：'+dec.verify+'（以下决策建议仅供参考）');
+  }else{
+    mg.push('**局内决策**：本局无法复算（'+dec.reason+'）。');
+  }
+  res.suggestions=mg.concat(mi);
+  return res;
+}
+/* 历史存档用的可序列化快照（丢掉函数与随机数，保留复盘所需的一切） */
+function snapshot(S){
+  return {
+    n:S.n,diff:S.diff,seed:S.seed,over:!!S.over,winner:S.winner,
+    gems:Object.assign({},S.gems),gold:S.gold,
+    board:{1:S.board[1].map(function(c){return c?c.id:null;}),
+      2:S.board[2].map(function(c){return c?c.id:null;}),
+      3:S.board[3].map(function(c){return c?c.id:null;})},
+    players:S.players.map(function(p){
+      return{name:p.name,human:p.human,points:p.points,gold:p.gold,
+        tokens:Object.assign({},p.tokens),bonuses:Object.assign({},p.bonuses),
+        cards:p.cards.map(function(c){return{level:c.level,bonus:c.bonus,prestige:c.prestige};}),
+        nobles:p.nobles.map(function(nb){return nb.id;}),
+        reservedN:p.reserved.length};
+    }),
+    nobles:S.nobles.map(function(nb){
+      return{id:nb.id,name:nb.name,prestige:nb.prestige,takenBy:nb.takenBy,
+        requires:Object.assign({},nb.requires)};}),
+    replay:S.replay
+  };
+}
+function replayMarkdown(S){
+  var a=analyzeGame(S),L=[],i,j;
+  L.push('# 璀璨宝石 · 对局复盘\n');
+  L.push('- 人数：'+S.n+' 人　AI 难度：'+({easy:'简单',mid:'普通',hard:'困难'}[S.diff]||S.diff));
+  L.push('- 牌局种子：'+S.seed+'（可复现同一副牌）');
+  L.push('- 终局：'+S.players.map(function(p){return p.name+' '+p.points+' 分';}).join(' / '));
+  L.push('- 获胜者：'+((S.over&&S.winner>=0)?S.players[S.winner].name:'（对局尚未结束）'));
+  L.push('- 全局回合：共 **'+a.totals.actions+' 手**（'+S.n+' 人 · 约 '+a.totals.rounds+' 轮 · 你走了 '+a.players[0].turns+' 手）');
+  if(a.decisions&&a.decisions.ok&&!a.decisions.verify)
+    L.push('- 复盘自检：用种子完整重放，终局状态与记录一致 ✓\n');
+  else if(a.decisions&&a.decisions.ok)
+    L.push('- 复盘自检：⚠️ '+a.decisions.verify+'\n');
+  else
+    L.push('- 复盘自检：无法重放（'+((a.decisions&&a.decisions.reason)||'—')+'）\n');
+  if(!S.over)L.push('> ⚠️ 本局尚未结束，以下为进行中的即时统计。\n');
+  L.push('## 一、关键指标\n');
+  L.push('| 玩家 | 得分 | 回合 | 买牌 L1/L2/L3 | 贵族 | 弃牌(次/枚) | 得分/回合 | 买得起却没买 |');
+  L.push('|---|---|---|---|---|---|---|---|');
+  for(i=0;i<a.players.length;i++){
+    var p=a.players[i];
+    L.push('| '+p.name+' | '+p.points+' | '+p.turns+' | '+p.buys[0].n+'/'+p.buys[1].n+'/'+p.buys[2].n+
+      ' | '+p.nobles+' | '+p.discards+'/'+p.discardGems+' | '+p.ppt.toFixed(2)+' | '+p.misses.length+' |');
+  }
+  L.push('\n关键指标补充（买牌按 前/中/后 三段拆解）：\n');
+  L.push('| 玩家 | 前期 | 中期 | 后期 | 第一次买 2 分卡 | 保留/兑现 |');
+  L.push('|---|---|---|---|---|---|');
+  for(i=0;i<a.players.length;i++){
+    var q=a.players[i],ph=q.phaseBuys,pp=q.phasePts;
+    var fm=function(x,k){var s2=x[0]+x[1]+x[2];
+      return s2?('L1 '+x[0]+'·L2 '+x[1]+'·L3 '+x[2]+'（本段 '+pp[k]+' 分）'):'—';};
+    L.push('| '+q.name+' | '+fm(ph[0],0)+' | '+fm(ph[1],1)+' | '+fm(ph[2],2)+
+      ' | '+(q.firstBig?('第 '+q.firstBig+' 回合'):'没买到')+
+      ' | '+q.reserved+' / '+q.reservedBought+' |');
+  }
+  L.push('\n## 二、各家终局得分卡\n');
+  for(i=0;i<a.players.length;i++){
+    var pc=a.players[i],cl=(pc.cardList||[]).slice().sort(function(x,y){
+      return (y.level-x.level)||(y.prestige-x.prestige);});
+    var cnt=[0,0,0],ptsL=[0,0,0];
+    for(j=0;j<cl.length;j++){cnt[cl[j].level-1]++;ptsL[cl[j].level-1]+=cl[j].prestige;}
+    L.push('**'+pc.name+'** · '+pc.points+' 分（卡牌 '+cl.length+' 张：'+
+      '一级 '+cnt[0]+' 张 '+ptsL[0]+' 分 / 二级 '+cnt[1]+' 张 '+ptsL[1]+' 分 / 三级 '+cnt[2]+' 张 '+ptsL[2]+' 分'+
+      (pc.nobles?(' ／ 贵族 '+pc.nobles+' 位 '+pc.nobles*3+' 分'):'')+'）');
+    if(cl.length){
+      L.push('');
+      L.push('| 等级 | 折扣 | 分数 |');
+      L.push('|---|---|---|');
+      for(j=0;j<cl.length;j++)
+        L.push('| T'+cl[j].level+' | '+GEM_CN[cl[j].bonus]+' | '+cl[j].prestige+' |');
+    }else L.push('\n（本局没有买过发展卡）');
+    L.push('');
+  }
+  L.push('\n## 三、各家打法\n');
+  for(i=0;i<a.profiles.length;i++){
+    var pr2=a.profiles[i];
+    L.push('### '+a.players[i].name+' · '+pr2.label+'\n');
+    for(j=0;j<pr2.lines.length;j++)L.push('- '+pr2.lines[j]);
+    L.push('');
+  }
+  L.push('\n## 四、大思路（针对你）\n');
+  for(i=0;i<a.macro.length;i++)L.push((i+1)+'. '+a.macro[i]);
+  L.push('\n## 五、小细节（对到回合，可配合下面的走子记录回看）\n');
+  for(i=0;i<a.micro.length;i++)L.push((i+1)+'. '+a.micro[i]);
+  if(a.notes.length){L.push('\n### 本局亮点\n');for(i=0;i<a.notes.length;i++)L.push('- '+a.notes[i]);}
+  L.push('\n## 六、局内决策优化（逐手复算，差距从大到小）\n');
+  if(a.decisions&&a.decisions.ok&&a.decisions.items.length){
+    for(i=0;i<a.decisions.items.length;i++){
+      var d=a.decisions.items[i];
+      L.push((i+1)+'. 第 **'+d.turn+' 回合**：你走了「'+d.actual+'」；复算更优的选择是「**'+d.best+'**」（评分差 '+d.gap+'）');
+    }
+    L.push('\n> 共检查 '+a.decisions.checked+' 个回合，其中 '+a.decisions.all+' 手与最优点有差距；上表只列差距最大的 '+
+      a.decisions.items.length+' 手。评分是启发式估值，仅供参考。');
+  }else if(a.decisions&&a.decisions.ok){
+    L.push('检查了你全部 '+a.decisions.checked+' 个回合：**没有发现与最优点有明显差距的一手**。');
+  }else{
+    L.push('本局无法复算决策（'+((a.decisions&&a.decisions.reason)||'—')+'）。');
+  }
+  L.push('\n## 七、走子记录\n');
+  L.push('| # | 玩家 | 动作 | 当时分数 |');
+  L.push('|---|---|---|---|');
+  var n=0;
+  for(i=0;i<S.replay.length;i++){
+    var e=S.replay[i];
+    var who=S.players[e.pi].name;
+    var act=e.text.replace(/^(你|AI-\d+)\s*/,'');
+    if(e.kind==='discard'||e.kind==='noble'){L.push('| — | '+who+' | '+act+' | — |');continue;}
+    n++;
+    L.push('| '+n+' | '+who+' | '+act.replace(/\|/g,'/')+' | '+e.pts+' |');
+  }
+  L.push('\n## 八、终局盘面\n');
+  for(i=0;i<S.n;i++){
+    var pl=S.players[i];
+    var bon=[];for(j=0;j<GEMS.length;j++)bon.push(GEM_CN[GEMS[j]]+' '+pl.bonuses[GEMS[j]]);
+    L.push('- **'+pl.name+'**：'+pl.points+' 分　折扣 '+bon.join('、')+
+      '　手上宝石 '+GEMS.map(function(g){return GEM_CN[g]+pl.tokens[g];}).join('、')+'　黄金 '+pl.gold);
+  }
+  L.push('\n> 由网页版《璀璨宝石》生成，指标仅作为观察标记，供你自己判断。');
+  return L.join('\n');
+}
+
+/* ================= AI ================= */
+function nobleGain(S,pi,card,P){
+  var p=S.players[pi],s=0,i,j;
+  for(i=0;i<S.nobles.length;i++){
+    var nb=S.nobles[i];
+    if(nb.takenBy>=0)continue;
+    var before=0,after=0;
+    for(j=0;j<GEMS.length;j++){
+      var g=GEMS[j],need=nb.requires[g]||0;
+      before+=Math.max(0,need-(p.bonuses[g]||0));
+      after+=Math.max(0,need-((p.bonuses[g]||0)+(card.bonus===g?1:0)));
+    }
+    if(before>0){
+      s+=P.noble*2.0*(before-after);
+      if(after===0)s+=P.noble*7;
+    }
+  }
+  return s;
+}
+function gemWants(S,pi,P){
+  var p=S.players[pi],w={},i,j,g,cand=[],lv;
+  for(i=0;i<GEMS.length;i++)w[GEMS[i]]=0;
+  for(lv=1;lv<=3;lv++)for(i=0;i<4;i++){var c=stackOf(S,lv,i);if(c)cand.push(c);}
+  for(i=0;i<p.reserved.length;i++)cand.push(p.reserved[i]);
+  var best=null,bs=-1e9;
+  for(i=0;i<cand.length;i++){
+    var nm=needMap(p,cand[i].cost);
+    var sc=cand[i].prestige*10+cand[i].level*1.5+nobleGain(S,pi,cand[i],P)-nm.n*1.0;
+    if(sc>bs){bs=sc;best={m:nm.m,n:nm.n};}
+  }
+  if(best)for(g in best.m)w[g]+=best.m[g]*2.0;
+  for(i=0;i<S.nobles.length;i++){
+    var nb=S.nobles[i];
+    if(nb.takenBy>=0)continue;
+    var def={},tot=0;
+    for(j=0;j<GEMS.length;j++){
+      g=GEMS[j];
+      var d=Math.max(0,(nb.requires[g]||0)-p.bonuses[g]);
+      if(d>0){def[g]=d;tot+=d;}
+    }
+    if(tot>0&&tot<=4)for(g in def)w[g]+=def[g]*1.6*P.noble;
+  }
+  if(P.deny>0){
+    for(var q=0;q<S.n;q++){
+      if(q===pi)continue;
+      var op=S.players[q];
+      for(i=0;i<S.nobles.length;i++){
+        var nb2=S.nobles[i];
+        if(nb2.takenBy>=0)continue;
+        var dd={},tt=0;
+        for(j=0;j<GEMS.length;j++){
+          g=GEMS[j];
+          var x=Math.max(0,(nb2.requires[g]||0)-op.bonuses[g]);
+          if(x>0){dd[g]=x;tt+=x;}
+        }
+        if(tt>0&&tt<=3)for(g in dd)if(S.gems[g]<=2)w[g]+=dd[g]*0.9*P.deny;
+      }
+    }
+  }
+  for(g in w)w[g]=Math.max(0,w[g]);
+  return w;
+}
+function autoDiscardList(S,pi){
+  var p=S.players[pi],over=totalTokens(p)-10;
+  if(over<=0)return[];
+  var P=AI_P[S.diff]||AI_P.mid,want=gemWants(S,pi,P);
+  var tot=0,i;for(i=0;i<GEMS.length;i++)tot+=want[GEMS[i]];
+  var goldW=tot/GEMS.length*1.25;
+  var owned=[],g;
+  for(i=0;i<GEMS.length;i++){g=GEMS[i];for(var k=0;k<p.tokens[g];k++)owned.push({g:g,w:want[g]});}
+  for(k=0;k<p.gold;k++)owned.push({g:'gold',w:goldW});
+  owned.sort(function(a,b){return a.w-b.w;});
+  return owned.slice(0,over).map(function(x){return x.g;});
+}
+function actionKey(a){
+  if(!a)return'?';
+  if(a.type==='take')return'take:'+a.list.slice().sort().join(',');
+  if(a.type==='buy')return a.from==='reserved'?('buyres:'+a.index):('buy:'+a.level+'-'+a.slot);
+  if(a.type==='reserve')return'reserve:'+a.level+'-'+a.slot;
+  return'pass';
+}
+/* 单个动作的静态评分（不含随机噪声；AI 与复盘共用同一把尺子） */
+function baseScore(S,pi,a,P,want){
+  var p=S.players[pi],sc=0,k,c2;
+  if(a.type==='pass')return -1e6;
+  if(a.type==='buy'){
+    var cd=cardOf(S,pi,a);
+    if(!cd)return -1e6;
+    var nm=needMap(p,cd.cost);
+    return 14+cd.prestige*10+cd.level*1.5+nobleGain(S,pi,cd,P)-nm.n*1.0*P.priceW;
+  }
+  if(a.type==='take'){
+    for(k=0;k<a.list.length;k++){
+      var g=a.list[k];
+      sc+=want[g]*(0.55+0.35*P.priceW);
+      if(S.gems[g]<=2)sc+=0.8*P.priceW;
+    }
+    if(a.list.length===2)sc+=0.6;
+    return sc;
+  }
+  c2=stackOf(S,a.level,a.slot);
+  if(!c2)return -1e6;
+  var nm2=needMap(p,c2.cost);
+  sc=c2.prestige*3.4+c2.level*1.6+nobleGain(S,pi,c2,P)*0.55-nm2.n*0.5;
+  sc-=(1-P.reserve)*9.5;
+  if(p.reserved.length>=2)sc-=4;
+  return sc;
+}
+/* 评估当前全部合法动作（确定性、无噪声） */
+function evalActions(S,pi,lvl){
+  var P=AI_P[lvl]||AI_P.mid,want=gemWants(S,pi,P),acts=legalActions(S,pi),out=[],i;
+  for(i=0;i<acts.length;i++)out.push({a:acts[i],sc:baseScore(S,pi,acts[i],P,want)});
+  return out;
+}
+function aiChoose(S,pi,lvl){
+  var P=AI_P[lvl]||AI_P.mid,acts=legalActions(S,pi);
+  if(!acts.length)return{type:'take',list:[]};
+  var want=gemWants(S,pi,P),best=null,bs=-1e15,i;
+  for(i=0;i<acts.length;i++){
+    var a=acts[i],sc=baseScore(S,pi,a,P,want);
+    if(P.noise>0)sc+=(S.rnd()*2-1)*P.noise*7;
+    if(sc>bs){bs=sc;best=a;}
+  }
+  if(best&&best.type==='take'&&!best.list.length){
+    for(i=0;i<GEMS.length;i++)if(S.gems[GEMS[i]]>0)return{type:'take',list:[GEMS[i]]};
+  }
+  return best||acts[0];
+}
+/* ============ 用种子重放整局：既自检记录，也支持逐手决策复盘 ============ */
+function cloneState(S){
+  return{
+    n:S.n,diff:S.diff,seed:S.seed,rnd:S.rnd,gems:Object.assign({},S.gems),gold:S.gold,
+    deck:{1:S.deck[1].slice(),2:S.deck[2].slice(),3:S.deck[3].slice()},
+    board:{1:S.board[1].slice(),2:S.board[2].slice(),3:S.board[3].slice()},
+    nobles:S.nobles.map(function(x){
+      return{id:x.id,name:x.name,prestige:x.prestige,takenBy:x.takenBy,
+        requires:Object.assign({},x.requires)};}),
+    players:S.players.map(function(p){
+      return{idx:p.idx,name:p.name,human:p.human,tokens:Object.assign({},p.tokens),gold:p.gold,
+        bonuses:Object.assign({},p.bonuses),cards:p.cards.slice(),reserved:p.reserved.slice(),
+        points:p.points,nobles:p.nobles.slice()};}),
+    turn:S.turn,over:S.over,finalRound:S.finalRound,winner:S.winner,
+    pending:S.pending?Object.assign({},S.pending):null,passStreak:S.passStreak||0,
+    log:[],replay:[]
+  };
+}
+/* 重放出来的终局 vs 记录的终局，逐项比对；返回第一处不一致的说明 */
+function cardIdOf(c){return c?(c.id||c):null;}
+function verifyReplay(S,T){
+  var i,j,g,gm;
+  if(S.gems){
+    for(g=0;g<GEMS.length;g++){
+      gm=GEMS[g];
+      if(S.gems[gm]!==T.gems[gm])return '宝石供应不一致（'+GEM_CN[gm]+'）';
+    }
+    if(S.gold!==T.gold)return '黄金供应不一致';
+  }
+  for(i=0;i<S.n;i++){
+    var a=S.players[i],b=T.players[i];
+    if(a.points!==b.points)return '玩家 '+(i+1)+' 分数不一致';
+    if(a.gold!==b.gold)return '玩家 '+(i+1)+' 黄金不一致';
+    for(g=0;g<GEMS.length;g++)if(a.tokens[GEMS[g]]!==b.tokens[GEMS[g]])return '玩家 '+(i+1)+' 宝石不一致';
+    for(g=0;g<GEMS.length;g++)if(a.bonuses[GEMS[g]]!==b.bonuses[GEMS[g]])return '玩家 '+(i+1)+' 折扣不一致';
+    if(a.cards.length!==b.cards.length)return '玩家 '+(i+1)+' 买牌数不一致';
+    if((a.reserved?a.reserved.length:(a.reservedN||0))!==(b.reserved?b.reserved.length:0))return '玩家 '+(i+1)+' 保留数不一致';
+  }
+  if(S.board){
+    for(var lv=1;lv<=3;lv++)for(j=0;j<4;j++){
+      /* 快照里存的是卡牌 id 字符串，实时局面里是卡牌对象，统一取 id 比较 */
+      if(cardIdOf(S.board[lv][j])!==cardIdOf(T.board[lv][j]))
+        return '牌桌不一致（'+lv+' 级第 '+(j+1)+' 位）';
+    }
+  }
+  for(i=0;i<S.nobles.length;i++)if(S.nobles[i].takenBy!==T.nobles[i].takenBy)return '贵族归属不一致';
+  return '';
+}
+function replayFromSeed(S){
+  var R=S.replay||[],i=0,guard=0,human=[],bad='',j,rec,rec2;
+  var T=newGame(S.n,S.seed,S.diff);
+  var counts=[];for(j=0;j<S.n;j++)counts[j]=0;
+  while(i<R.length&&guard++<8000){
+    var e=R[i];
+    if(e.kind==='discard'){
+      if(T.pending&&T.pending.type==='discard'){
+        applyDiscard(T,T.pending.pi,e.gems||[]);T.pending=null;stepNoble(T);
+      }
+      i++;continue;
+    }
+    if(e.kind==='noble'){
+      if(T.pending&&T.pending.type==='noble'){
+        claimNoble(T,T.pending.pi,e.noble||T.pending.options[0]);T.pending=null;advanceTurn(T);
+      }
+      i++;continue;
+    }
+    if(!e.a){bad='第 '+(i+1)+' 条记录缺少结构化动作（旧版存档）';break;}
+    if(T.over){bad='记录条数超过牌局长度';break;}
+    var acting=T.turn;
+    counts[acting]++;
+    if(acting===0&&e.pi===0)human.push({turn:counts[0],before:cloneState(T),a:e.a});
+    if(!applyAction(T,acting,e.a)){bad='第 '+(i+1)+' 条记录无法重放（'+actionKey(e.a)+'）';break;}
+    i++;
+    afterAction(T);
+    var g2=0;
+    while(T.pending&&g2++<5){
+      if(T.pending.type==='discard'){
+        rec=(R[i]&&R[i].kind==='discard')?R[i]:null;
+        applyDiscard(T,T.pending.pi,rec?rec.gems:autoDiscardList(T,T.pending.pi));
+        if(rec)i++;
+        T.pending=null;stepNoble(T);
+      }else if(T.pending.type==='noble'){
+        rec2=(R[i]&&R[i].kind==='noble')?R[i]:null;
+        claimNoble(T,T.pending.pi,(rec2&&rec2.noble)?rec2.noble:T.pending.options[0]);
+        if(rec2)i++;
+        T.pending=null;advanceTurn(T);
+      }else break;
+    }
+  }
+  return{ok:!bad,reason:bad,state:T,human:human,counts:counts};
+}
+/* 局内决策优化：逐个人类回合，与"最优动作"对比，按差距排序 */
+function decisionReview(S){
+  var rep=replayFromSeed(S);
+  if(!rep.ok)return{ok:false,reason:rep.reason,items:[],all:0,checked:0,verify:''};
+  var items=[],i,k,h,ev,best,actSc,gap;
+  for(i=0;i<rep.human.length;i++){
+    h=rep.human[i];
+    ev=evalActions(h.before,0,'hard');
+    if(!ev.length)continue;
+    best=ev[0];actSc=null;
+    for(k=0;k<ev.length;k++){
+      if(ev[k].sc>best.sc)best=ev[k];
+      if(actionKey(ev[k].a)===actionKey(h.a))actSc=ev[k].sc;
+    }
+    if(actSc===null)continue;
+    gap=best.sc-actSc;
+    if(gap>1.5&&actionKey(best.a)!==actionKey(h.a))
+      items.push({turn:h.turn,gap:Math.round(gap*10)/10,
+        actual:actText(h.before,h.a),best:actText(h.before,best.a)});
+  }
+  items.sort(function(x,y){return y.gap-x.gap;});
+  return{ok:true,reason:'',items:items.slice(0,6),all:items.length,
+    checked:rep.human.length,verify:verifyReplay(S,rep.state)};
+}
+function actText(S,a){
+  var card=captureCard(S,0,a);
+  return describe(S,0,a,card,0).t.replace(/^(你|AI-\d+)\s*/,'');
+}
+
+</script>
+
+<script id="ui">
+/* ================= 界面 ================= */
+var state=null,sel=[],hint=null;
+
+function $(id){return document.getElementById(id);}
+/* 只在内容真的变化时才重建 DOM：避免高频重渲染把正在被点击的节点换掉 */
+function setHTML(id,html){
+  var el=$(id);
+  if(!el)return;
+  if(el._h===html)return;
+  el._h=html;el.innerHTML=html;
+}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function chip(g,n,cls){
+  if(!n)return'';
+  if(g==='gold')return'<span class="chip gold '+(cls||'')+'">'+n+'</span>';
+  return'<span class="chip '+(cls||'')+'" style="background:'+GEM_HEX[g]+';color:'+GEM_FG[g]+'">'+n+'</span>';
+}
+function costHtml(cost){var h='';for(var i=0;i<GEMS.length;i++)h+=chip(GEMS[i],cost[GEMS[i]]||0);return h;}
+/* 空心筹码：表示"实际要付"，与实心的"卡面成本"区分开 */
+function ghostChip(g,n){
+  if(!n)return'';
+  var c=(g==='gold')?'#c49a1a':(g==='white'?'#9fb4c7':GEM_HEX[g]);
+  return'<span class="chip ghost" style="border-color:'+c+';color:'+c+'">'+n+'</span>';
+}
+/* 扣掉折扣、并用黄金补缺之后，实付是否与卡面成本不同 */
+function planDiffers(plan,cost){
+  for(var i=0;i<GEMS.length;i++){
+    var g=GEMS[i];
+    if((plan.tokens[g]||0)!==(cost[g]||0))return true;
+  }
+  return plan.gold>0;
+}
+function tokenHtml(t,gold){
+  var h='';for(var i=0;i<GEMS.length;i++)h+=chip(GEMS[i],t[GEMS[i]]||0);
+  if(gold)h+=chip('gold',gold);return h;
+}
+
+/* ---------- 渲染 ---------- */
+function render(){
+  var S=state;
+  if(!S){$('nobles').innerHTML='';$('gemPool').innerHTML='';$('board').innerHTML='';
+    $('players').innerHTML='';$('selBar').innerHTML='';$('turnInfo').textContent='—';return;}
+  var humanTurn=S.players[S.turn].human&&!S.pending&&!S.over;
+  /* 贵族 */
+  setHTML('nobles',S.nobles.map(function(nb){
+    return'<div class="noble'+(nb.takenBy>=0?' taken':'')+'">'+
+      '<div class="npt">3<small style="font-size:10px;color:var(--muted)"> 分</small></div>'+
+      '<div class="ncost">'+costHtml(nb.requires)+'</div>'+
+      '<div class="nname">'+esc(nb.name)+'</div>'+
+      (nb.takenBy>=0?'<div class="nowner">'+esc(S.players[nb.takenBy].name)+'</div>':'')+
+      '</div>';
+  }).join(''));
+  /* 宝石池：五种宝石在前（快捷键 1–5），黄金在后（6） */
+  var pool='';
+  for(var gi=0;gi<GEMS.length;gi++){
+    var g0=GEMS[gi],n0=S.gems[g0],selN=sel.filter(function(x){return x===g0;}).length;
+    pool+='<div class="gemstack'+(n0<=0?' dead':'')+(selN?' sel':'')+'" data-gem="'+g0+'" title="快捷键 '+(gi+1)+'">'+
+      '<span class="kbd">'+(gi+1)+'</span>'+
+      '<div class="gdot" style="background:'+GEM_HEX[g0]+'"></div><div class="gnum">'+n0+'</div>'+
+      '<div class="glab">'+GEM_CN[g0].slice(0,2)+'</div></div>';
+  }
+  pool+='<div class="gemstack gold'+(S.gold<=0?' dead':'')+'" data-gold="1" title="快捷键 6">'+
+    '<span class="kbd">6</span>'+
+    '<div class="gdot" style="background:#e2b32e"></div><div class="gnum">'+S.gold+'</div>'+
+    '<div class="glab">黄金</div></div>';
+  setHTML('gemPool',pool);
+  /* 牌桌 */
+  var names={3:'三级',2:'二级',1:'一级'},html='';
+  for(var lv=3;lv>=1;lv--){
+    var cells='';
+    for(var s=0;s<4;s++){
+      var c=stackOf(S,lv,s);
+      if(!c){cells+='<div class="card empty"></div>';continue;}
+      var p0=S.players[0],plan=humanTurn?payPlan(p0,c.cost):null;
+      var isHint=hint&&hint.type==='buy'&&((hint.from==='board'&&hint.level===lv&&hint.slot===s));
+      var eff='';
+      if(plan&&planDiffers(plan,c.cost)){
+        eff='<span class="efflab">实付</span>';
+        for(var k2=0;k2<GEMS.length;k2++){
+          var gg=GEMS[k2];
+          if(plan.tokens[gg])eff+=ghostChip(gg,plan.tokens[gg]);
+        }
+        if(plan.gold)eff+=ghostChip('gold',plan.gold);
+      }
+      cells+='<div class="card'+(plan?' aff':'')+'"'+(isHint?' style="box-shadow:0 0 0 3px rgba(224,182,74,.9)"':'')+'>'+
+        '<div class="stripe" style="background:'+GEM_HEX[c.bonus]+'"></div>'+
+        '<div class="pt">'+(c.prestige||'')+'</div>'+
+        '<div class="bmark" style="background:'+GEM_HEX[c.bonus]+'"></div>'+
+        '<div class="cost">'+costHtml(c.cost)+'</div>'+
+        (humanTurn&&eff?'<div class="eff">'+eff+'</div>':'')+
+        '<div class="ops">'+
+          '<button class="primary" data-buy="'+lv+'-'+s+'"'+(plan?'':' disabled')+'>买</button>'+
+          '<button data-res="'+lv+'-'+s+'"'+(p0.reserved.length<3?'':' disabled')+'>留</button>'+
+        '</div></div>';
+    }
+    html+='<div class="row"><div class="rowlab"><b>'+['','一','二','三'][lv]+'</b>'+
+      '<div style="font-size:10px">'+names[lv]+'</div><div class="dleft">牌堆 '+S.deck[lv].length+'</div></div>'+cells+'</div>';
+  }
+  setHTML('board',html);
+  /* 选择条 */
+  var acts0=legalActions(S,0);
+  if(humanTurn&&acts0.length===1&&acts0[0].type==='pass'){
+    setHTML('selBar','<span class="tip">你已经没有可执行的动作了</span>'+
+      '<button class="primary" id="btnPass">跳过本回合</button>');
+  }else if(humanTurn){
+    var selTxt=sel.length?sel.map(function(g){return GEM_CN[g];}).join(' + '):'';
+    var ok=sel.length>0;
+    setHTML('selBar','<span class="tip">本回合已选：</span>'+
+      (selTxt?'<b>'+selTxt+'</b>':'<span class="tip">（还没选）</span>')+
+      '<button class="primary" id="btnTake"'+(ok?'':' disabled')+'>确认拿取</button>'+
+      '<button id="btnClear"'+(ok?'':' disabled')+'>清空</button>'+
+      '<span class="tip" style="margin-left:auto">点宝石堆或按 1–5 拿取 · 同色点两次=拿 2 个 · Enter 确认 · Esc 清空</span>');
+  }else{
+    setHTML('selBar','<span class="tip">等待对手行动…</span>');
+  }
+  /* 玩家 */
+  setHTML('players',S.players.map(function(p,idx){
+    var res=p.reserved.map(function(c,ix){
+      var plan=humanTurn&&idx===0?payPlan(p,c.cost):null;
+      return'<div class="minicard">'+
+        '<div class="mpt">'+(c.prestige||'')+' <span style="font-size:10px;color:var(--muted)">'+GEM_CN[c.bonus]+'</span></div>'+
+        '<div class="mcost">'+costHtml(c.cost)+'</div>'+
+        (idx===0?'<button data-buyres="'+ix+'"'+(plan&&humanTurn?'':' disabled')+'>购买</button>':'')+
+        '</div>';
+    }).join('')||'<span style="font-size:11px;color:var(--dim)">无</span>';
+    var bonusH='';for(var i=0;i<GEMS.length;i++)bonusH+=chip(GEMS[i],p.bonuses[GEMS[i]]||0,p.bonuses[GEMS[i]]?'':'dim');
+    var nobleH=p.nobles.length?'<span style="font-size:10px;color:var(--muted)">贵族×'+p.nobles.length+'</span>':'';
+    return'<div class="pl'+(idx===S.turn&&!S.over?' cur':'')+'">'+
+      '<div class="ph"><div class="pname">'+esc(p.name)+'</div>'+
+      (S.over&&S.winner===idx?'<span style="font-size:11px;color:var(--gold)">🏆 胜</span>':'')+
+      '<div class="ppts">'+p.points+'<small> 分</small></div></div>'+
+      '<div class="prow"><span class="plab">宝石</span>'+tokenHtml(p.tokens,p.gold)+'</div>'+
+      '<div class="prow"><span class="plab">折扣</span>'+bonusH+(nobleH?'<span style="font-size:10px;color:var(--muted)">贵族×'+p.nobles.length+'</span>':'')+'</div>'+
+      '<div class="prow"><span class="plab">保留</span></div><div class="res">'+res+'</div>'+
+      '<div style="font-size:10px;color:var(--dim);margin-top:4px">已购 '+p.cards.length+' 张</div>'+
+      '</div>';
+  }).join(''));
+  /* 状态 */
+  var cur=S.players[S.turn];
+  $('turnInfo').textContent=S.over?('对局结束 · '+S.players[S.winner].name+' 获胜')
+    :(cur.human?'轮到你行动':(cur.name+' 行动中…'))+(S.finalRound&&!S.over?'（最后结算轮）':'');
+  $('btnHint').disabled=!humanTurn;
+  renderLog();
+}
+
+function renderLog(){
+  var S=state;if(!S)return;
+  var el=$('log');
+  var h=S.log.slice(-60).map(function(x){
+    return'<div class="'+(x.cls||'')+'">'+esc(x.t)+'</div>';
+  }).join('');
+  if(el._h===h)return;
+  el._h=h;el.innerHTML=h;
+  el.scrollTop=el.scrollHeight;
+}
+function logAdd(t,cls){state.log.push({t:t,cls:cls||''});}
+
+/* ---------- 回合推进 ---------- */
+function pump(){
+  var S=state;
+  if(!S)return;
+  if(S.over){render();return;}
+  if(S.pending){
+    if(S.players[S.pending.pi].human){render();return;}
+    if(S.pending.type==='discard'){
+      var list=autoDiscardList(S,S.pending.pi);
+      applyDiscard(S,S.pending.pi,list);
+      logAdd(S.players[S.pending.pi].name+' 弃掉多余宝石（'+
+        list.map(function(g){return g==='gold'?'黄金':GEM_CN[g];}).join('、')+'）');
+      recDiscard(S,S.pending.pi,list);
+      S.pending=null;stepNoble(S);
+    }else{
+      var ids=S.pending.options.slice(),pi=S.pending.pi;
+      var pick=ids[0],pickNb=null;
+      for(var i=0;i<ids.length;i++){
+        var nb=S.nobles.filter(function(x){return x.id===ids[i];})[0];
+        var nbp=S.nobles.filter(function(x){return x.id===pick;})[0];
+        if(nb&&nbp&&Object.keys(nb.requires).length<Object.keys(nbp.requires).length){pick=ids[i];pickNb=nb;}
+      }
+      if(!pickNb)pickNb=S.nobles.filter(function(x){return x.id===pick;})[0];
+      claimNoble(S,pi,pick);
+      recNoble(S,pi,pickNb);
+      S.pending=null;advanceTurn(S);
+    }
+    return pump();
+  }
+  if(!S.players[S.turn].human){render();scheduleAI();return;}
+  render();
+}
+var aiTimer=null;
+function scheduleAI(){
+  if(aiTimer)return;
+  aiTimer=setTimeout(function(){
+    aiTimer=null;
+    var S=state;
+    if(!S||S.over||S.pending||S.players[S.turn].human){pump();return;}
+    var pi=S.turn,a=aiChoose(S,pi,S.diff);
+    if(!isLegal(S,pi,a)){ /* 兜底：AI 给出非法动作时换第一个合法动作 */
+      var acts=legalActions(S,pi);
+      a=acts[0];
+    }
+    var card=captureCard(S,pi,a),avail=bestAffordable(S,pi);
+    var plan=(a.type==='buy'&&card)?payPlan(S.players[pi],card.cost):null;
+    if(!applyAction(S,pi,a)){pump();return;}
+    var txt=describe(S,pi,a,card,S.lastGold).t;
+    logAdd(txt,'');
+    recAction(S,pi,a,{text:txt,avail:avail,card:card,plan:plan});
+    afterAction(S);
+    pump();
+  },520);
+}
+function humanAct(a){
+  var S=state;
+  if(!S||S.over||S.pending||!S.players[S.turn].human)return;
+  if(!isLegal(S,0,a))return;
+  var card=captureCard(S,0,a),avail=bestAffordable(S,0);
+  var plan=(a.type==='buy'&&card)?payPlan(S.players[0],card.cost):null;
+  if(!applyAction(S,0,a))return;
+  var txt=describe(S,0,a,card,S.lastGold).t;
+  logAdd(txt,'me');
+  recAction(S,0,a,{text:txt,avail:avail,card:card,plan:plan});
+  sel=[];hint=null;
+  afterAction(S);
+  pump();
+}
+/* ---------- 交互 ---------- */
+function isLegal(S,pi,a){
+  var k=actionKey(a),acts=legalActions(S,pi),i;
+  for(i=0;i<acts.length;i++)if(actionKey(acts[i])===k)return true;
+  return false;
+}
+/* 点击可能落在筹码里的子元素（圆点/数字/文字）上，必须往上找带 data-* 的那个元素 */
+var CLICKABLE='[data-gem],[data-gold],[data-buy],[data-res],[data-buyres],[data-np],[data-df],'+
+  '[data-noble-choose],[data-hist],[data-histdl],[data-drop],[data-dropback]';
+function resolveTarget(e){
+  var n=e.target;
+  if(n&&n.closest){var c=n.closest(CLICKABLE);if(c)return c;}
+  return n;
+}
+/* 轻提示 */
+var toastTimer=null;
+function toast(msg){
+  var el=document.getElementById('toast');
+  if(!el){el=document.createElement('div');el.id='toast';document.body.appendChild(el);}
+  el.textContent=msg;el.className='on';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){el.className='';},1800);
+}
+/* 点宝石（鼠标与快捷键共用一套规则，任何被拒绝的操作都给一句提示） */
+function pickGem(g){
+  var S=state;
+  if(!S)return;
+  if(S.over){toast('本局已经结束了');return;}
+  if(S.pending){toast('请先处理弹窗');return;}
+  if(!S.players[S.turn].human){toast('现在是对手的回合');return;}
+  var cur=sel.slice(),cnt=cur.filter(function(x){return x===g;}).length;
+  if(S.gems[g]<=0){toast(GEM_CN[g]+'已经拿光了');return;}
+  if(cnt===0){
+    if(cur.length===2&&cur[0]===cur[1]){toast('已经选了 2 枚同色，本回合只能拿这一种');return;}
+    if(cur.length>=3){toast('本回合最多拿 3 枚不同颜色');return;}
+    cur.push(g);
+  }else if(cnt===1){
+    if(cur.length>1){toast('已经选了多种颜色，不能再拿第 2 枚 '+GEM_CN[g]);return;}
+    if(S.gems[g]<4){toast(GEM_CN[g]+'不足 4 枚，不能一次拿 2 枚');return;}
+    cur.push(g);
+  }else{toast('同一颜色最多选 2 枚');return;}
+  sel=cur;render();
+}
+document.addEventListener('click',function(e){
+  var t=resolveTarget(e),ds=t.dataset||{};
+  if(ds.gold){toast('黄金只能通过「保留卡牌」获得（1–5 是五种宝石）');return;}
+  if(ds.gem){pickGem(ds.gem);return;}
+  if(t.id==='btnClear'){sel=[];render();return;}
+  if(t.id==='btnPass'){humanAct({type:'pass'});return;}
+  if(t.id==='btnTake'){
+    if(!sel.length)return;
+    humanAct({type:'take',list:sel.slice()});return;
+  }
+  if(ds.buy){
+    var q=ds.buy.split('-');
+    humanAct({type:'buy',from:'board',level:+q[0],slot:+q[1]});return;
+  }
+  if(ds.res){
+    var q2=ds.res.split('-');
+    humanAct({type:'reserve',level:+q2[0],slot:+q2[1]});return;
+  }
+  if(ds.buyres!==undefined&&ds.buyres!==''){
+    humanAct({type:'buy',from:'reserved',index:+ds.buyres});return;
+  }
+  if(t.id==='btnHint'){
+    if(!state||state.over||!state.players[state.turn].human)return;
+    var a=aiChoose(state,0,'hard');
+    var txt='建议：'+describe(state,0,a).t.replace('你 ','');
+    if(a.type==='buy'){var c=cardOf(state,0,a);txt='建议购入 '+shortName(c);}
+    hint=a;logAdd('💡 '+txt,'sys');render();return;
+  }
+  if(t.id==='btnNew'){startModal();return;}
+  if(t.id==='btnReview'){showReview();return;}
+  if(t.id==='btnHistory'){openHistory();return;}
+  if(t.id==='btnZoomIn'){setZoom((uiZoom()||1.12)+0.06);return;}
+  if(t.id==='btnZoomOut'){setZoom((uiZoom()||1.12)-0.06);return;}
+});
+/* ---------- 界面缩放 ---------- */
+var ZKEY='splendor_zoom',ZMIN=0.9,ZMAX=1.6;
+function uiZoom(){
+  var v=parseFloat(document.body.style.zoom||'');
+  return isNaN(v)?1.12:v;
+}
+function setZoom(z){
+  z=Math.min(ZMAX,Math.max(ZMIN,Math.round(z*100)/100));
+  document.body.style.zoom=z;
+  try{localStorage.setItem(ZKEY,String(z));}catch(e){}
+}
+(function initZoom(){
+  try{
+    var v=parseFloat(localStorage.getItem(ZKEY)||'');
+    if(!isNaN(v))document.body.style.zoom=Math.min(ZMAX,Math.max(ZMIN,v));
+  }catch(e){}
+})();
+/* ---------- 键盘快捷键 ---------- */
+document.addEventListener('keydown',function(e){
+  var S=state;
+  if(!S||e.ctrlKey||e.metaKey||e.altKey)return;
+  if($('modal').classList.contains('on'))return;      // 弹窗打开时不抢键
+  var k=e.key;
+  if(k>='1'&&k<='9'&&k.length===1){
+    e.preventDefault();
+    if(k==='6'){toast('黄金只能通过「保留卡牌」获得（1–5 是五种宝石）');return;}
+    if(k==='7'||k==='8'||k==='9'){toast('宝石只有 5 种，快捷键是 1–5');return;}
+    pickGem(GEMS[+k-1]);
+    return;
+  }
+  if(k==='Enter'||k===' '){
+    var bt=document.getElementById('btnTake');
+    if(bt&&!bt.disabled){e.preventDefault();humanAct({type:'take',list:sel.slice()});}
+    return;
+  }
+  if(k==='Escape'){
+    if(sel.length){e.preventDefault();sel=[];render();}
+    return;
+  }
+  if(k==='+'||k==='='){e.preventDefault();setZoom(uiZoom()+0.06);return;}
+  if(k==='-'||k==='_'){e.preventDefault();setZoom(uiZoom()-0.06);return;}
+});
+
+/* ---------- 弹窗 ---------- */
+$('modal').addEventListener('click',function(e){
+  var t=resolveTarget(e),ds=t.dataset||{};
+  if(ds.np!==undefined&&ds.np!==''){pendingSetup.n=+ds.np;
+    [].forEach.call(document.querySelectorAll('[data-np]'),function(x){x.classList.toggle('on',+x.dataset.np===pendingSetup.n);});return;}
+  if(ds.df){pendingSetup.diff=ds.df;
+    [].forEach.call(document.querySelectorAll('[data-df]'),function(x){x.classList.toggle('on',x.dataset.df===pendingSetup.diff);});return;}
+  if(t.id==='btnStart'){var cfg=pendingSetup;hideModal();newRun(cfg.n,cfg.diff);return;}
+  if(ds.drop){ // 弃宝石
+    var g=ds.drop,d=state.pending.sel;
+    if(g==='gold'){ if((d.gold||0)<state.players[0].gold)d.gold=(d.gold||0)+1; }
+    else if((d[g]||0)<state.players[0].tokens[g])d[g]=(d[g]||0)+1;
+    renderDiscard();return;
+  }
+  if(ds.dropback){
+    var g2=ds.dropback,d2=state.pending.sel;
+    if(g2==='gold'){ if(d2.gold>0)d2.gold--; }
+    else if(d2[g2]>0)d2[g2]--;
+    renderDiscard();return;
+  }
+  if(t.id==='btnDiscardOk'){
+    var S=state,list=[];
+    for(var k in S.pending.sel)for(var i=0;i<S.pending.sel[k];i++)list.push(k);
+    if(totalTokens(S.players[0])-list.length>10)return;
+    applyDiscard(S,0,list);logAdd('你弃掉 '+list.map(function(g){return g==='gold'?'黄金':GEM_CN[g];}).join('、'));
+    recDiscard(S,0,list);
+    S.pending=null;stepNoble(S);pump();return;
+  }
+  if(ds.nobleChoose){
+    var id=ds.nobleChoose;
+    claimNoble(state,0,id);
+    var nb=state.nobles.filter(function(x){return x.id===id;})[0];
+    logAdd('你获得贵族 '+nb.name+'（+3 分）','me');
+    recNoble(state,0,nb);
+    state.pending=null;advanceTurn(state);pump();return;
+  }
+  if(t.id==='btnAgain'){startModal();return;}
+  if(t.id==='btnReviewEnd'){showReview(true);return;}
+  if(t.id==='btnBack'){if(state&&state.over)showResult();else hideModal();return;}
+  if(ds.hist!==undefined&&ds.hist!==''){
+    var rec=loadHistory()[+ds.hist];
+    if(rec){hideModal();showReview(false,rec);reviewReturn='history';}
+    return;
+  }
+  if(ds.histdl!==undefined&&ds.histdl!==''){
+    var rec2=loadHistory()[+ds.histdl];
+    if(rec2)downloadReplay(rec2);
+    return;
+  }
+  if(t.id==='btnHistClear'){
+    if(t.dataset.confirm){try{localStorage.removeItem(HKEY);}catch(e){}openHistory();}
+    else{t.dataset.confirm='1';t.textContent='再点一次确认清空';t.style.color='var(--danger)';}
+    return;
+  }
+  if(t.id==='btnDl'){downloadReplay(reviewS||undefined);return;}
+  if(t.id==='btnCloseHist'){hideModal();return;}
+  if(t.id==='btnHistBack'){openHistory();return;}
+  if(t.id==='btnHistJson'){downloadHistory();return;}
+  if(t.id==='btnSameSeed'&&reviewS){var r=reviewS;reviewS=null;hideModal();newRun(r.n,r.diff,r.seed);return;}
+  if(t.id==='btnCloseReview'){
+    var back=reviewReturn==='result';reviewReturn=null;
+    if(back)showResult();else hideModal();
+    return;
+  }
+});
+/* 从结算页进来的复盘，关闭后要回到结算页，别让人丢掉这一局 */
+var reviewReturn=null,reviewS=null;
+/* ============ 历史对局存档（localStorage） ============ */
+var HKEY='splendor_history_v1';
+function loadHistory(){try{return JSON.parse(localStorage.getItem(HKEY)||'[]')||[];}catch(e){return[];}}
+function rankOf(S){
+  var r=1;
+  for(var i=1;i<S.n;i++){
+    var a=S.players[i],b=S.players[0];
+    if(a.points>b.points||(a.points===b.points&&a.cards.length<b.cards.length))r++;
+  }
+  return r;
+}
+function saveHistory(S){
+  var rec=snapshot(S);
+  rec.ts=Date.now();
+  rec.rank=rankOf(S);
+  rec.myPoints=S.players[0].points;
+  var h=loadHistory();
+  h.unshift(rec);
+  while(h.length>40)h.pop();
+  try{localStorage.setItem(HKEY,JSON.stringify(h));}
+  catch(e){
+    try{localStorage.setItem(HKEY,JSON.stringify(h.slice(0,8)));}catch(e2){}
+  }
+}
+function downloadHistory(){
+  var h=loadHistory();
+  if(!h.length)return;
+  var blob=new Blob([JSON.stringify({app:'splendor-web',exported:new Date().toISOString(),games:h},null,1)],
+    {type:'application/json;charset=utf-8'});
+  var url=URL.createObjectURL(blob),d=new Date();
+  var pad=function(x){return(x<10?'0':'')+x;};
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='璀璨宝石历史对局_'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1500);
+}
+function fmtTime(ts){
+  if(!ts)return'—';
+  var d=new Date(ts),pad=function(x){return(x<10?'0':'')+x;};
+  return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+}
+function openHistory(){
+  var h=loadHistory(),rows='';
+  if(!h.length){
+    rows='<p style="color:var(--muted);font-size:12.5px">还没有记录。每打完一局（或中途开新局）会自动存档，最多保留最近 40 局。</p>';
+  }else{
+    rows='<table class="htab"><tr><th>时间</th><th>人数/难度</th><th>种子</th><th>比分（你·名次）</th><th>动作</th></tr>';
+    for(var i=0;i<h.length;i++){
+      var r=h[i];
+      var sc=r.players.map(function(p,k){return (k===0?'':k+':')+p.points;}).join(' / ');
+      rows+='<tr><td>'+fmtTime(r.ts)+'</td>'+
+        '<td>'+r.n+'人 · '+({easy:'简单',mid:'普通',hard:'困难'}[r.diff]||r.diff)+'</td>'+
+        '<td class="mono">'+r.seed+'</td>'+
+        '<td>'+(r.over?('你 '+r.myPoints+' 分 · 第 '+r.rank+' 名'):'（未打完）你 '+r.myPoints+' 分')+
+          '<div style="font-size:10px;color:var(--muted)">'+sc+'</div></td>'+
+        '<td><button data-hist="'+i+'">查看</button> <button data-histdl="'+i+'">下载</button></td></tr>';
+    }
+    rows+='</table>';
+  }
+  $('modal').innerHTML='<div class="mbox"><h3>历史对局（最近 '+h.length+' 局）</h3>'+rows+
+    '<div style="text-align:right;margin-top:16px">'+
+    (h.length?'<button id="btnHistClear">清空历史</button> '+
+      '<button id="btnHistJson">导出全部 (.json)</button> ':'')+
+    '<button class="primary" id="btnCloseHist">关闭</button></div>'+
+    '<p style="font-size:11px;color:var(--muted);margin-top:10px">每局都带种子，可用「同种子再来一局」复现同一副牌，对比不同打法。</p>'+
+    '</div>';
+  $('modal').classList.add('on');
+}
+function showReview(fromResult,Sobj){
+  var S=Sobj||state;
+  if(!S||!S.replay.length)return;
+  reviewS=S;
+  reviewReturn=fromResult?'result':(Sobj?'history':null);
+  var a=analyzeGame(S),i,rows='';
+  for(i=0;i<a.players.length;i++){
+    var p=a.players[i];
+    rows+='<div class="rescard'+(S.over&&S.winner===i?' win':'')+'"><b>'+p.points+' 分</b>'+
+      '<div style="font-size:12px;color:var(--txt2);margin-top:2px">'+esc(p.name)+'</div>'+
+      '<div style="font-size:11px;color:var(--muted)">'+p.turns+' 回合 · 买牌 '+p.totalBuys+' 张 · 贵族 '+p.nobles+' 位</div>'+
+      '<div style="font-size:11px;color:var(--muted)">得分/回合 '+p.ppt.toFixed(2)+' · 弃牌 '+p.discards+' 次('+p.discardGems+'枚)</div>'+
+      '<div style="font-size:11px;color:var(--muted)">阶段得分 '+p.phasePts.join(' / ')+'</div></div>';
+  }
+  var mk=function(arr){return arr.map(function(t){
+    return'<li>'+t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</li>';}).join('');};
+  var nt=a.notes.map(function(t){return'<li>'+t+'</li>';}).join('');
+  $('modal').innerHTML='<div class="mbox"><h3>对局复盘'+(S.over?'':'（对局进行中）')+'</h3>'+
+    '<div class="seedbar">种子 <b class="mono">'+S.seed+'</b> · '+S.n+' 人 · '+
+      ({easy:'简单',mid:'普通',hard:'困难'}[S.diff]||S.diff)+
+      ' · 共 <b>'+a.totals.actions+'</b> 手 / 约 '+a.totals.rounds+' 轮'+
+      (a.decisions&&a.decisions.ok&&!a.decisions.verify?' · 自检 ✓':'')+
+      '<button id="btnSameSeed" style="margin-left:8px">同种子再来一局</button></div>'+
+    '<div class="resbox">'+rows+'</div>'+
+    '<h4>终局得分卡</h4>'+handHtml(a)+
+    '<h4>各家打法</h4>'+profHtml(a)+
+    '<h4>大思路（针对你）</h4><ol class="adv">'+mk(a.macro)+'</ol>'+
+    '<h4>小细节</h4><ol class="adv">'+mk(a.micro)+'</ol>'+
+    '<h4>局内决策优化</h4>'+decHtml(a.decisions)+
+    (nt?'<h4>本局亮点</h4><ul class="adv">'+nt+'</ul>':'')+
+    '<div style="text-align:right;margin-top:16px">'+
+    '<button id="btnDl">下载复盘 (.md)</button> '+
+    (Sobj?'<button id="btnHistBack">返回历史</button> ':'')+
+    '<button class="primary" id="btnCloseReview">'+(reviewReturn==='result'?'返回结算':'关闭')+'</button></div>'+
+    '<p style="font-size:11px;color:var(--muted);margin-top:10px">下载的文件包含指标表、各家得分卡与打法、大思路、小细节、完整走子记录与终局盘面。</p>'+
+    '</div>';
+  $('modal').classList.add('on');
+}
+function handHtml(a){
+  var out='',i,j;
+  for(i=0;i<a.players.length;i++){
+    var p=a.players[i],cl=(p.cardList||[]).slice().sort(function(x,y){
+      return (y.level-x.level)||(y.prestige-x.prestige);});
+    var chips=cl.map(function(c){
+      return '<span class="hcard '+c.bonus+'" title="T'+c.level+' · '+GEM_CN[c.bonus]+'">'+
+        (c.prestige?c.prestige:'·')+'</span>';}).join('');
+    var cnt=[0,0,0],ptsL=[0,0,0];
+    for(j=0;j<cl.length;j++){cnt[cl[j].level-1]++;ptsL[cl[j].level-1]+=cl[j].prestige;}
+    var seg='一级 '+cnt[0]+' 张 '+ptsL[0]+' 分 · 二级 '+cnt[1]+' 张 '+ptsL[1]+
+      ' 分 · 三级 '+cnt[2]+' 张 '+ptsL[2]+' 分';
+    if(p.nobles)seg+=' · 贵族 ×'+p.nobles+(p.nobleNames&&p.nobleNames.length?('（'+p.nobleNames.join('、')+'）'):'');
+    out+='<div class="hand"><div class="hh"><b>'+esc(p.name)+'</b> · '+p.points+' 分</div>'+
+      '<div class="hchips">'+(chips||'<span style="color:var(--muted);font-size:12px">本局没有买过发展卡</span>')+'</div>'+
+      '<div class="hsum">'+seg+'</div></div>';
+  }
+  return out;
+}
+function profHtml(a){
+  if(!a.profiles||!a.profiles.length)return'';
+  var out='';
+  for(var i=0;i<a.profiles.length;i++){
+    var pr=a.profiles[i];
+    out+='<div class="prof"><div class="ph"><b>'+esc(a.players[i].name)+'</b> · '+esc(pr.label)+'</div><ul>'+
+      pr.lines.map(function(t){return '<li>'+t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</li>';}).join('')+'</ul></div>';
+  }
+  return out;
+}
+function decHtml(dec){
+  if(!dec)return'<p style="font-size:12px;color:var(--muted)">—</p>';
+  if(!dec.ok)return'<p style="font-size:12px;color:var(--muted)">本局无法复算决策（'+esc(dec.reason||'')+'）。</p>';
+  if(!dec.items.length)
+    return'<p style="font-size:12.5px;color:var(--green)">检查了你全部 '+dec.checked+' 个回合，没有一手与最优点有明显差距。</p>';
+  return'<ol class="adv">'+dec.items.map(function(d){
+    return'<li>第 <b>'+d.turn+' 回合</b>：你走了「'+esc(d.actual)+'」，复算更优的是「<b>'+esc(d.best)+'</b>」<span style="color:var(--muted)">（评分差 '+d.gap+'）</span></li>';
+  }).join('')+'</ol>'+
+  '<p style="font-size:11px;color:var(--muted);margin:6px 0 0">共检查 '+dec.checked+' 个回合，其中 '+dec.all+
+  ' 手有差距；上表只列差距最大的 '+dec.items.length+' 手。评分为启发式估值，做参考用。</p>';
+}
+function downloadReplay(Sobj){
+  var S=Sobj||state;
+  if(!S||!S.replay.length)return;
+  var blob=new Blob([replayMarkdown(S)],{type:'text/markdown;charset=utf-8'});
+  var url=URL.createObjectURL(blob),d=new Date();
+  var pad=function(x){return(x<10?'0':'')+x;};
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='璀璨宝石复盘_'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+
+    pad(d.getHours())+pad(d.getMinutes())+'_种子'+S.seed+'.md';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1500);
+}
+function renderDiscard(){  var S=state,p=S.players[0],d=S.pending.sel;
+  var over=totalTokens(p)-10;
+  var rows='';
+  var all=GEMS.concat(['gold']);
+  for(var i=0;i<all.length;i++){
+    var g=all[i],have=g==='gold'?p.gold:p.tokens[g];
+    if(!have)continue;
+    rows+='<div class="discard-row">'+
+      '<span style="width:52px">'+(g==='gold'?'黄金':GEM_CN[g])+'</span>'+
+      '<span style="width:64px;color:var(--muted)">持有 '+have+'</span>'+
+      '<button data-dropback="'+g+'"'+((d[g]||0)>0?'':' disabled')+'>−</button>'+
+      '<b style="width:22px;text-align:center;color:var(--danger)">'+(d[g]||0)+'</b>'+
+      '<button data-drop="'+g+'"'+((d[g]||0)<have?'':' disabled')+'>+</button>'+
+      '</div>';
+  }
+  var dropped=0;for(var k in d)dropped+=d[k];
+  var left=totalTokens(p)-dropped;
+  $('modal').innerHTML='<div class="mbox"><h3>手上宝石超过 10 枚，请弃掉 '+(over)+' 枚</h3>'+
+    rows+'<p style="color:'+(left>10?'var(--danger)':'var(--green)')+'">弃掉后手上：'+left+' 枚</p>'+
+    '<div style="text-align:right"><button class="primary" id="btnDiscardOk"'+(left>10?' disabled':'')+'>确认</button></div></div>';
+  $('modal').classList.add('on');
+}
+function renderNobleChoice(){
+  var S=state,ids=S.pending.options;
+  var cards=ids.map(function(id){
+    var nb=S.nobles.filter(function(x){return x.id===id;})[0];
+    return'<div class="opt" data-noble-choose="'+id+'" style="cursor:pointer">'+
+      '<b>'+esc(nb.name)+'</b><div style="margin-top:6px">'+costHtml(nb.requires)+'</div>'+
+      '<span>3 分</span></div>';
+  }).join('');
+  $('modal').innerHTML='<div class="mbox"><h3>你满足多位贵族的条件，选择一位拜访（+3 分）</h3>'+
+    '<div class="optrow">'+cards+'</div></div>';
+  $('modal').classList.add('on');
+}
+function checkPendingModal(){
+  var S=state;
+  if(!S||!S.pending||!S.players[S.pending.pi].human){return false;}
+  if(S.pending.type==='discard'){ if(!S.pending.sel)S.pending.sel={}; renderDiscard(); return true;}
+  if(S.pending.type==='noble'){ renderNobleChoice(); return true;}
+  return false;
+}
+function hideModal(){$('modal').classList.remove('on');$('modal').innerHTML='';}
+var pendingSetup={n:2,diff:'mid'};
+function startModal(){
+  $('modal').innerHTML='<div class="mbox"><h3>新开一局 · 璀璨宝石</h3>'+
+    '<div style="color:var(--muted);margin-bottom:4px">玩家人数</div><div class="optrow">'+
+    '<div class="opt'+(pendingSetup.n===2?' on':'')+'" data-np="2"><b>2 人</b><span>每色 4 枚宝石 · 3 张贵族</span></div>'+
+    '<div class="opt'+(pendingSetup.n===3?' on':'')+'" data-np="3"><b>3 人</b><span>每色 5 枚宝石 · 4 张贵族</span></div>'+
+    '<div class="opt'+(pendingSetup.n===4?' on':'')+'" data-np="4"><b>4 人</b><span>每色 7 枚宝石 · 5 张贵族</span></div>'+
+    '</div><div style="color:var(--muted);margin:12px 0 4px">AI 强度</div><div class="optrow">'+
+    '<div class="opt'+(pendingSetup.diff==='easy'?' on':'')+'" data-df="easy"><b>简单</b><span>只看眼前，很少留牌</span></div>'+
+    '<div class="opt'+(pendingSetup.diff==='mid'?' on':'')+'" data-df="mid"><b>普通</b><span>会算贵族与性价比</span></div>'+
+    '<div class="opt'+(pendingSetup.diff==='hard'?' on':'')+'" data-df="hard"><b>困难</b><span>抢牌卡位，目标感强</span></div>'+
+    '</div><div style="text-align:right;margin-top:14px">'+
+    (state?'<button id="btnBack">'+(state.over?'返回结算':'取消')+'</button> ':'')+
+    '<button class="primary" id="btnStart">开始</button></div></div>';
+  $('modal').classList.add('on');
+}
+function newRun(n,diff,seed){
+  /* 上一局还没打完就开新局：先把它存进历史，别丢 */
+  if(state&&!state.over&&state.replay.length>=6&&!state.saved){
+    state.saved=true;saveHistory(state);
+  }
+  state=newGame(n,seed===undefined?Math.floor(Math.random()*1e9):seed,diff);
+  sel=[];hint=null;reviewS=null;
+  state.log=[];
+  logAdd('新对局开始：'+n+' 人 · AI '+({easy:'简单',mid:'普通',hard:'困难'}[diff]||'普通')+' · 种子 '+state.seed,'sys');
+  pump();
+}
+/* 主循环：把待人类处理的弹窗接上 */
+var _pump=pump;
+pump=function(){
+  _pump();
+  if(state&&state.pending&&state.players[state.pending.pi].human)checkPendingModal();
+  else if(state&&$('modal').classList.contains('on')&&!isStickyModal())hideModal();
+  if(state&&state.over&&!$('modal').classList.contains('on'))showResult();
+};
+/* 自己弹出的常驻窗（设置 / 结算 / 复盘）不自动关闭 */
+function isStickyModal(){
+  var h=$('modal').innerHTML;
+  return h.indexOf('btnStart')>=0||h.indexOf('btnAgain')>=0||h.indexOf('btnDl')>=0||
+    h.indexOf('btnCloseHist')>=0;
+}
+function showResult(){
+  var S=state;
+  if(!S.saved){S.saved=true;saveHistory(S);}
+  var rows=S.players.map(function(p,i){
+    return'<div class="rescard'+(i===S.winner?' win':'')+'">'+
+      '<b>'+p.points+' 分</b><div style="font-size:12px;color:var(--txt2);margin-top:2px">'+esc(p.name)+
+      (i===S.winner?' 🏆':'')+'</div>'+
+      '<div style="font-size:11px;color:var(--muted)">卡牌 '+p.cards.length+' 张 · 贵族 '+p.nobles.length+' 位</div></div>';
+  }).join('');
+  $('modal').innerHTML='<div class="mbox"><h3>对局结束 · '+esc(S.players[S.winner].name)+' 获胜</h3>'+
+    '<div class="resbox">'+rows+'</div>'+
+    '<p style="font-size:12px;color:var(--muted)">同分时由「购买卡牌更少」的一方获胜。</p>'+
+    '<div style="text-align:right;margin-top:14px">'+
+    '<button id="btnReviewEnd">查看完整复盘</button> '+
+    '<button class="primary" id="btnAgain">再来一局</button></div>'+
+    '<p style="font-size:11px;color:var(--muted);margin-top:8px">'+
+    '想复盘就点左边那个（可导出 .md）；点「再来一局」后仍能从设置页返回这里。本局已存入「历史对局」。</p></div>';
+  $('modal').classList.add('on');
+}
+
+/* 启动 */
+startModal();
+</script>
+</body>
+</html>
